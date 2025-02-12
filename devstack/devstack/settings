@@ -1,0 +1,7 @@
+define_plugin snapshot-scheduler
+
+# Dipendenza da Cinder
+plugin_requires snapshot-scheduler cinder
+
+# Abilita Cinder se non già attivo
+enable_service c-api c-vol c-sch c-bak
