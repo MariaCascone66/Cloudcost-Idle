@@ -1,3 +1,4 @@
+#!/bin/bash
 # plugin.sh - DevStack plugin.sh dispatch script template
 
 function install_template {
