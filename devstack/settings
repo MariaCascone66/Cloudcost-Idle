@@ -1,1 +1,4 @@
 enable_service snapshot-scheduler
+
+# Dipendenza da Cinder
+plugin_requires snapshot-scheduler cinder
