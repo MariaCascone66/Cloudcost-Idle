@@ -2,7 +2,7 @@
 
 function install_snapshot-scheduler {
     echo "Installing snapshot-scheduler plugin"
-    apt  install /opt/stack/snapshot-scheduler/app
+    sudo pip install /opt/stack/snapshot-scheduler/app
 }
 
 function start_snapshot-scheduler {
