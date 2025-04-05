@@ -1,4 +1,14 @@
 enable_service snapshot-scheduler
 
+
+# Define the plugin name
+define_plugin snapshot-scheduler
+
+# Services this plugin uses
+enable_service snapshot-scheduler
+
 # Dipendenza da Cinder
-plugin_requires snapshot-scheduler cinder
+#plugin_requires snapshot-scheduler cinder
+
+# Defaults (can be overridden in local.conf)
+AUTO_SNAPSHOT_INTERVAL=${AUTO_SNAPSHOT_INTERVAL:-3600}

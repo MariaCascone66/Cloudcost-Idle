@@ -1,41 +1,26 @@
 #!/bin/bash
 
-# Funzione chiamata da stack.sh per abilitare il plugin
-function install_snapshot_scheduler {
-    echo "Installing Snapshot Scheduler..."
-    sudo cp $DEST/snapshot_scheduler/snapshot_scheduler.conf /etc/
-    sudo pip install -r $DEST/snapshot_scheduler/requirements.txt
+# Called during DevStack setup (stack.sh)
+function install_auto_snapshot {
+    echo "Installing snapshot-scheduler plugin"
+    pip_install_gr snapshotlib
 }
 
-function configure_snapshot_scheduler {
-    echo "Configuring Snapshot Scheduler..."
-    
-    # Assicurati che l'ambiente di OpenStack sia caricato (se non è già fatto)
-    if [ -f $DEST/devstack/openrc ]; then
-        source $DEST/devstack/openrc
-    fi
-
-    # Qui non è necessario reimpostare le variabili, in quanto sono già presenti in openrc
-    echo "Snapshot Scheduler configured with OpenStack environment from openrc."
-
-    # Se necessario, puoi aggiungere altre configurazioni specifiche per il tuo plugin, come i parametri di retention
-    #export SNAPSHOT_RETENTION_DAYS=7
-    #export SNAPSHOT_INTERVAL_MINUTES=30
-
-    #echo "Configuration complete. Retention: $SNAPSHOT_RETENTION_DAYS days, Interval: $SNAPSHOT_INTERVAL_MINUTES minutes"
+function configure_auto_snapshot {
+    echo "Configuring snapshot-scheduler  plugin"
+    # Crea un cron job semplice per esempio
+    (crontab -l 2>/dev/null; echo "*/$((AUTO_SNAPSHOT_INTERVAL / 60)) * * * * /usr/bin/python3 /opt/stack/snapshot-scheduler /snapshot_agent.py") | crontab -
 }
 
-
-function start_snapshot_scheduler {
-    echo "Starting Snapshot Scheduler..."
-    sudo nohup python3 $DEST/snapshot_scheduler/scheduler.py > /var/log/snapshot_scheduler.log 2>&1 &
+function start_auto_snapshot {
+    echo "snapshot-scheduler  will run in background via cron"
 }
 
-# Registriamo il servizio
+# Main plugin logic
 if [[ "$1" == "stack" && "$2" == "install" ]]; then
-    install_snapshot_scheduler
-elif [[ "$1" == "stack" && "$2" == "configure" ]]; then
-    configure_snapshot_scheduler
-elif [[ "$1" == "stack" && "$2" == "start" ]]; then
-    start_snapshot_scheduler
+    install_auto_snapshot
+elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
+    configure_auto_snapshot
+elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
+    start_auto_snapshot
 fi
