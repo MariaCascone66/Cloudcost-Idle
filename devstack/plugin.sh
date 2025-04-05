@@ -2,7 +2,15 @@
 
 function install_snapshot-scheduler {
     echo "Installing snapshot-scheduler plugin"
-    sudo pip install /opt/stack/snapshot-scheduler/app
+    
+    # Crea il virtualenv (se non esiste)
+    if [ ! -d "/opt/stack/snapshot-scheduler/venv" ]; then
+        python3 -m venv /opt/stack/snapshot-scheduler/venv
+    fi
+
+    # Attiva l'ambiente e installa il pacchetto
+    source /opt/stack/snapshot-scheduler/venv/bin/activate
+    pip install /opt/stack/snapshot-scheduler/app
 }
 
 function start_snapshot-scheduler {
