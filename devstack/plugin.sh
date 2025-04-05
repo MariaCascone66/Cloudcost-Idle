@@ -12,6 +12,11 @@ function install_snapshot-scheduler {
     source /opt/stack/snapshot-scheduler/venv/bin/activate
     pip install --upgrade pip
     
+     # Se esiste requirements.txt, installa i pacchetti da lì
+    if [ -f "/opt/stack/snapshot-scheduler/app/requirements.txt" ]; then
+        pip install -r /opt/stack/snapshot-scheduler/app/requirements.txt
+    fi
+
     # Se il pacchetto non ha setup.py, installa i pacchetti manualmente
     pip install /opt/stack/snapshot-scheduler/app/*
 }
