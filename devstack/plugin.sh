@@ -18,9 +18,6 @@ function install_snapshot-scheduler {
         echo "requirements.txt not found!"
         exit 1
     fi
-
-     # Installa manualmente scheduler.py
-    pip install -r "/opt/stack/snapshot-scheduler/app/scheduler.py"
 }
 
 function start_snapshot-scheduler {
