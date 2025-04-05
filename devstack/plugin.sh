@@ -1,26 +1,21 @@
 #!/bin/bash
 
-# Called during DevStack setup (stack.sh)
-function install_auto_snapshot {
+function install_snapshot-scheduler {
     echo "Installing snapshot-scheduler plugin"
-    pip_install_gr snapshotlib
+    pip install /opt/stack/snapshot-scheduler/app
 }
 
-function configure_auto_snapshot {
-    echo "Configuring snapshot-scheduler  plugin"
-    # Crea un cron job semplice per esempio
-    (crontab -l 2>/dev/null; echo "*/$((AUTO_SNAPSHOT_INTERVAL / 60)) * * * * /usr/bin/python3 /opt/stack/snapshot-scheduler /snapshot_agent.py") | crontab -
+function start_snapshot-scheduler {
+    echo "Starting snapshot-scheduler service"
+    sudo cp /opt/stack/snapshot-scheduler/snap-scheduler.service /etc/systemd/system/
+    sudo systemctl daemon-reexec
+    sudo systemctl daemon-reload
+    sudo systemctl enable snap-scheduler.service
+    sudo systemctl start snap-scheduler.service
 }
 
-function start_auto_snapshot {
-    echo "snapshot-scheduler  will run in background via cron"
-}
-
-# Main plugin logic
 if [[ "$1" == "stack" && "$2" == "install" ]]; then
-    install_auto_snapshot
+    install_snapshot-scheduler 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    configure_auto_snapshot
-elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
-    start_auto_snapshot
+    start_snapshot-scheduler 
 fi
