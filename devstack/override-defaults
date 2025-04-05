@@ -1,2 +1,1 @@
-export SNAPSHOT_INTERVAL=${SNAPSHOT_INTERVAL:-300} # Tempo in secondi (default: 5 minuti)
-export MAX_SNAPSHOTS=${MAX_SNAPSHOTS:-5} # Numero massimo di snapshot per istanza
+SNAPSHOT_INTERVAL=${SNAPSHOT_INTERVAL:-3600}

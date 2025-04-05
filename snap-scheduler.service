@@ -1,0 +1,13 @@
+[Unit]
+Description=Snapshot Scheduler Plugin OpenStack
+After=network.target
+
+[Service]
+User=stack
+Type=simple
+WorkingDirectory=/opt/stack/snapshot-scheduler
+ExecStart=/bin/bash -c "source /opt/stack/devstack/openrc admin admin && /opt/stack/snapshot-scheduler/app/venv/bin/python3 /opt/stack/snapshot-scheduler/app/scheduler.py"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
