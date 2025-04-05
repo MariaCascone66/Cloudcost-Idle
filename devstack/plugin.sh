@@ -8,9 +8,12 @@ function install_snapshot-scheduler {
         python3 -m venv /opt/stack/snapshot-scheduler/venv
     fi
 
-    # Attiva l'ambiente e installa il pacchetto
+    # Attiva l'ambiente e installa i pacchetti
     source /opt/stack/snapshot-scheduler/venv/bin/activate
-    pip install /opt/stack/snapshot-scheduler/app
+    pip install --upgrade pip
+    
+    # Se il pacchetto non ha setup.py, installa i pacchetti manualmente
+    pip install /opt/stack/snapshot-scheduler/app/*
 }
 
 function start_snapshot-scheduler {
