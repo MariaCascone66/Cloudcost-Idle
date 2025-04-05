@@ -1,58 +1,41 @@
 #!/bin/bash
-#for i in {1..50}; do
-#    echo "THIS IS A MESSAGE IN CAPS"
-#done
 
-function snapshot_scheduler_install {
-    echo "Installing Snapshot Scheduler plugin..."
+# Funzione chiamata da stack.sh per abilitare il plugin
+function install_snapshot_scheduler {
+    echo "Installing Snapshot Scheduler..."
+    sudo cp $DEST/snapshot_scheduler/snapshot_scheduler.conf /etc/
+    sudo pip install -r $DEST/snapshot_scheduler/requirements.txt
 }
 
-function snapshot_scheduler_configure {
+function configure_snapshot_scheduler {
     echo "Configuring Snapshot Scheduler..."
-    echo "Snapshot interval: $SNAPSHOT_INTERVAL seconds"
-    echo "Max snapshots per instance: $MAX_SNAPSHOTS"
+    
+    # Assicurati che l'ambiente di OpenStack sia caricato (se non è già fatto)
+    if [ -f $DEST/devstack/openrc ]; then
+        source $DEST/devstack/openrc
+    fi
 
-    # Crea uno script di sistema per il servizio scheduler
-    cat <<EOF | sudo tee /usr/local/bin/snapshot_scheduler.sh > /dev/null
-#!/bin/bash
-while true; do
-    echo "Checking instances for snapshots..."
-    source /opt/stack/devstack/openrc admin admin
-    INSTANCES=\$(openstack server list -f value -c ID)
+    # Qui non è necessario reimpostare le variabili, in quanto sono già presenti in openrc
+    echo "Snapshot Scheduler configured with OpenStack environment from openrc."
 
-    for INSTANCE in \$INSTANCES; do
-        TIMESTAMP=\$(date +%Y%m%d%H%M%S)
-        echo "Creating snapshot for \$INSTANCE..."
-        openstack server image create --name "snapshot-\$INSTANCE-\$TIMESTAMP" \$INSTANCE
-    done
+    # Se necessario, puoi aggiungere altre configurazioni specifiche per il tuo plugin, come i parametri di retention
+    #export SNAPSHOT_RETENTION_DAYS=7
+    #export SNAPSHOT_INTERVAL_MINUTES=30
 
-    sleep $SNAPSHOT_INTERVAL
-done
-EOF
-
-    sudo chmod +x /usr/local/bin/snapshot_scheduler.sh
+    #echo "Configuration complete. Retention: $SNAPSHOT_RETENTION_DAYS days, Interval: $SNAPSHOT_INTERVAL_MINUTES minutes"
 }
 
-function snapshot_scheduler_start {
+
+function start_snapshot_scheduler {
     echo "Starting Snapshot Scheduler..."
-    nohup /usr/local/bin/snapshot_scheduler.sh > /var/log/snapshot_scheduler.log 2>&1 &
+    sudo nohup python3 $DEST/snapshot_scheduler/scheduler.py > /var/log/snapshot_scheduler.log 2>&1 &
 }
 
-function snapshot_scheduler_stop {
-    echo "Stopping Snapshot Scheduler..."
-    pkill -f snapshot_scheduler.sh
-}
-
-function snapshot_scheduler_uninstall {
-    echo "Uninstalling Snapshot Scheduler..."
-    rm -f /usr/local/bin/snapshot_scheduler.sh
-}
-
-if [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    snapshot_scheduler_configure
-    snapshot_scheduler_start
-elif [[ "$1" == "unstack" ]]; then
-    snapshot_scheduler_stop
-elif [[ "$1" == "clean" ]]; then
-    snapshot_scheduler_uninstall
+# Registriamo il servizio
+if [[ "$1" == "stack" && "$2" == "install" ]]; then
+    install_snapshot_scheduler
+elif [[ "$1" == "stack" && "$2" == "configure" ]]; then
+    configure_snapshot_scheduler
+elif [[ "$1" == "stack" && "$2" == "start" ]]; then
+    start_snapshot_scheduler
 fi
