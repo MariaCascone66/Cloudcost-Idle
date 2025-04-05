@@ -17,8 +17,8 @@ function install_snapshot-scheduler {
         pip install -r /opt/stack/snapshot-scheduler/app/requirements.txt
     fi
 
-    # Se il pacchetto non ha setup.py, installa i pacchetti manualmente
-    pip install /opt/stack/snapshot-scheduler/app/*
+     # Installa manualmente scheduler.py
+    pip install /opt/stack/snapshot-scheduler/app/scheduler.py
 }
 
 function start_snapshot-scheduler {
