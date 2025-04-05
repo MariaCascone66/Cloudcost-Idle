@@ -4,11 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/opt/stack/snapshot-scheduler/venv/bin/python /opt/stack/snapshot-scheduler/app/main.py
-WorkingDirectory=/opt/stack/snapshot-scheduler/app
-Restart=always
+WorkingDirectory=/opt/stack/snapshot-scheduler
+ExecStart=/bin/bash -c "source /opt/stack/devstack/openrc admin admin && /opt/stack/snapshot-scheduler/app/venv/bin/python3 /opt/stack/snapshot-scheduler/app/scheduler.py"
+Restart=on-failure
 User=stack
-Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
