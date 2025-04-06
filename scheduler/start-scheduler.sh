@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+import os
+
+# Stampa il percorso del file corrente
+print("Percorso corrente:", os.getcwd())
 
 # Carica le credenziali OpenStack
 source "/opt/stack/devstack/openrc admin admin"

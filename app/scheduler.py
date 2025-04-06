@@ -16,3 +16,9 @@ if __name__ == "__main__":
     while True:
         create_snapshot()
         time.sleep(3600) 
+
+
+# Stampa il percorso del file corrente
+print("Percorso corrente:", os.getcwd())
+
+
