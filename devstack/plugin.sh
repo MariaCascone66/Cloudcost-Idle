@@ -1,17 +1,17 @@
 #!/bin/bash
 
-function install_snapshot-scheduler {
+function install_snapshot_scheduler {
     echo "Installing snapshot-scheduler plugin"
     
-    # Crea il virtualenv 
-    if [ ! -d "/opt/stack/snapshot-scheduler/venv" ]; then
-        python3 -m venv "/opt/stack/snapshot-scheduler/venv"
+    # Crea il virtualenv in /opt/stack/snapshot-scheduler/app/venv
+    if [ ! -d "/opt/stack/snapshot-scheduler/app/venv" ]; then
+        python3 -m venv "/opt/stack/snapshot-scheduler/app/venv"
     fi
 
     # Attiva l'ambiente e installa i pacchetti
-    source "/opt/stack/snapshot-scheduler/venv/bin/activate"
+    source "/opt/stack/snapshot-scheduler/app/venv/bin/activate"
     
-    # Install Requirements
+    # Installa le dipendenze
     if [ -f "/opt/stack/snapshot-scheduler/app/requirements.txt" ]; then
         pip install -r "/opt/stack/snapshot-scheduler/app/requirements.txt" || { echo "Failed to install dependencies"; exit 1; }
     else
@@ -20,7 +20,7 @@ function install_snapshot-scheduler {
     fi
 }
 
-function start_snapshot-scheduler {
+function start_snapshot_scheduler {
     echo "Starting snapshot-scheduler service"
     sudo cp "/opt/stack/snapshot-scheduler/scheduler/snap-scheduler.service" "/etc/systemd/system/"
 
@@ -31,7 +31,7 @@ function start_snapshot-scheduler {
 }
 
 if [[ "$1" == "stack" && "$2" == "install" ]]; then
-    install_snapshot-scheduler 
+    install_snapshot_scheduler 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    start_snapshot-scheduler 
+    start_snapshot_scheduler 
 fi
