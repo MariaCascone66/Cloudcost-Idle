@@ -1,9 +1,4 @@
 #!/bin/bash
-import os
-
-# Stampa il percorso del file corrente
-print("Percorso corrente:", os.getcwd())
-
 function install_snapshot_scheduler {
     echo "Installing snapshot-scheduler plugin"
     
