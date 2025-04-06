@@ -7,7 +7,6 @@ function install_snapshot_scheduler {
     python3 -m venv /opt/stack/snapshot-scheduler/app/venv
     source /opt/stack/snapshot-scheduler/app/venv/bin/activate
     pip install -r /opt/stack/snapshot-scheduler/app/requirements.txt
-    deactivate
 }
 
 function configure_snapshot_scheduler {
