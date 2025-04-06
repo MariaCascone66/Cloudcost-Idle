@@ -22,8 +22,9 @@ function install_snapshot-scheduler {
 
 function start_snapshot-scheduler {
     echo "Starting snapshot-scheduler service"
-    sudo cp "/opt/stack/snapshot-scheduler/snap-scheduler.service" "/etc/systemd/system/"
-    sudo systemctl daemon-reexec
+    sudo cp "/opt/stack/snapshot-scheduler/scheduler/snap-scheduler.service" "/etc/systemd/system/"
+
+    #sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
     sudo systemctl enable snap-scheduler.service
     sudo systemctl start snap-scheduler.service
