@@ -13,12 +13,12 @@ def create_snapshot():
             conn.block_storage.create_snapshot(volume_id=volume.id, name=snapshot_name)
 
 if __name__ == "__main__":
+
+    # Stampa il percorso corrente di esecuzione
+    print("Percorso corrente:", os.getcwd())
+
     while True:
         create_snapshot()
         time.sleep(3600) 
-
-
-# Stampa il percorso del file corrente
-print("Percorso corrente:", os.getcwd())
 
 
