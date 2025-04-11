@@ -1,36 +1,69 @@
 #!/bin/bash
-function install_snapshot_scheduler {
-    echo "Installing snapshot-scheduler plugin"
-    
-    # Crea il virtualenv in /opt/stack/snapshot-scheduler/app/venv
-    if [ ! -d "/opt/stack/snapshot-scheduler/app/venv" ]; then
-        python3 -m venv "/opt/stack/snapshot-scheduler/app/venv"
-    fi
 
-    # Attiva l'ambiente e installa i pacchetti
-    source "/opt/stack/snapshot-scheduler/app/venv/bin/activate"
-    
-    # Installa le dipendenze
-    if [ -f "/opt/stack/snapshot-scheduler/app/requirements.txt" ]; then
-        pip install -r "/opt/stack/snapshot-scheduler/app/requirements.txt" || { echo "Failed to install dependencies"; exit 1; }
-    else
-        echo "requirements.txt not found!"
-        exit 1
-    fi
+DEST=${DEST:-/opt/stack}
+PLUGIN_DIR=$DEST/green-cloud-plugin
+SYSTEMD_DIR=/etc/systemd/system
+
+source $PLUGIN_DIR/devstack/settings
+
+function install_flask_dependencies {
+    sudo apt update
+    sudo apt install -y python3-pip
+    pip install -r $PLUGIN_DIR/webapp/requirements.txt
 }
 
-function start_snapshot_scheduler {
-    echo "Starting snapshot-scheduler service"
-    sudo cp "/opt/stack/snapshot-scheduler/scheduler/snap-scheduler.service" "/etc/systemd/system/"
+function configure_snap_stack_plugin {
+    echo "Plugin configurato."
+}
 
+function start_snap_stack_plugin {
+    echo "Creazione istanza test..."
+    openstack server create \
+      --image "$IMAGE_NAME" \
+      --flavor "$FLAVOR_NAME" \
+      --network "$NET_NAME" \
+      --user-data "$PLUGIN_DIR/cloud-init/user-data.sh" \
+      green-instance-1
+
+    echo "Attesa avvio VM..."
+    sleep 30
+
+    echo "Avvio servizio Snap Stack..."
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
-    sudo systemctl enable snap-scheduler.service
-    sudo systemctl start snap-scheduler.service
+    sudo systemctl enable snap-stack.service
+    sudo systemctl restart snap-stack.service
 }
 
-if [[ "$1" == "stack" && "$2" == "install" ]]; then
-    install_snapshot_scheduler 
-elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    start_snapshot_scheduler 
+function copy_service_file {
+    sudo cp $PLUGIN_DIR/systemd/snap-stack.service $SYSTEMD_DIR/
+}
+
+if is_service_enabled snap-stack; then
+
+    if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
+        echo_summary "Nessun pacchetto aggiuntivo richiesto."
+
+    elif [[ "$1" == "stack" && "$2" == "install" ]]; then
+        echo_summary "Installazione dipendenze Flask..."
+        install_flask_dependencies
+        copy_service_file
+
+    elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
+        echo_summary "Configurazione plugin Snap Stack..."
+        configure_snap_stack_plugin
+
+    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
+        echo_summary "Esecuzione Snap Stack Plugin..."
+        start_snap_stack_plugin
+    fi
+
+    if [[ "$1" == "unstack" ]]; then
+        echo_summary "Arresto servizio Snap Stack..."
+        sudo systemctl stop snap-stack.service || { echo "Errore nell'arresto"; exit 1; }
+    fi
+
+    if [[ "$1" == "clean" ]]; then
+        sudo rm -f $SYSTEMD_DIR/snap-stack.service
+    fi
 fi
