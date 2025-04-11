@@ -1,3 +1,3 @@
-IMAGE_NAME="ubuntu-22.04"
-FLAVOR_NAME="m1.small"
-NET_NAME="private"
+# Settings Openstack
+enable_service green-cloud
+

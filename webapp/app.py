@@ -1,20 +1,16 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 import random
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Dummy simulated data for demonstration
+data = [
+    {"name": "demo-instance", "cpu": random.randint(10, 80), "ram": random.randint(256, 2048), "co2": round(random.uniform(0.5, 5.0), 2)}
+]
 
-@app.route('/data')
-def data():
-    usage = {
-        'cpu': round(random.uniform(30, 90), 2),
-        'ram': round(random.uniform(1024, 4096), 2),  # in MB
-    }
-    co2_estimate = round(usage['cpu'] * usage['ram'] * 0.00001, 4)  # stima
-    return jsonify({**usage, 'co2': co2_estimate})
+@app.route("/")
+def index():
+    return render_template("index.html", instances=data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
+    app.run(host='0.0.0.0', port=5000)

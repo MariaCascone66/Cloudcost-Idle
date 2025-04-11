@@ -6,7 +6,7 @@ After=network.target
 User=stack
 WorkingDirectory=/opt/stack/green-cloud-plugin/webapp
 ExecStart=/usr/bin/python3 /opt/stack/green-cloud-plugin/webapp/app.py
-Restart=on-faiure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
