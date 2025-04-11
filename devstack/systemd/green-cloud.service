@@ -1,0 +1,12 @@
+[Unit]
+Description=Green Cloud Flask WebApp
+After=network.target
+
+[Service]
+User=stack
+WorkingDirectory=/opt/stack/green-cloud-plugin/webapp
+ExecStart=/usr/bin/python3 /opt/stack/green-cloud-plugin/webapp/app.py
+Restart=on-faiure
+
+[Install]
+WantedBy=multi-user.target

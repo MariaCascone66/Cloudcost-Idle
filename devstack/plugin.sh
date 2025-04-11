@@ -12,11 +12,11 @@ function install_flask_dependencies {
     pip install -r $PLUGIN_DIR/webapp/requirements.txt
 }
 
-function configure_snap_stack_plugin {
+function configure_green_cloud_plugin {
     echo "Plugin configurato."
 }
 
-function start_snap_stack_plugin {
+function start_green_cloud_plugin {
     echo "Creazione istanza test..."
     openstack server create \
       --image "$IMAGE_NAME" \
@@ -28,18 +28,18 @@ function start_snap_stack_plugin {
     echo "Attesa avvio VM..."
     sleep 30
 
-    echo "Avvio servizio Snap Stack..."
+    echo "Avvio servizio Green Cloud..."
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
-    sudo systemctl enable snap-stack.service
-    sudo systemctl restart snap-stack.service
+    sudo systemctl enable green-cloud.service
+    sudo systemctl restart green-cloud.service
 }
 
 function copy_service_file {
-    sudo cp $PLUGIN_DIR/systemd/snap-stack.service $SYSTEMD_DIR/
+    sudo cp $PLUGIN_DIR/systemd/green-cloud.service $SYSTEMD_DIR/
 }
 
-if is_service_enabled snap-stack; then
+if is_service_enabled green-cloud; then
 
     if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
         echo_summary "Nessun pacchetto aggiuntivo richiesto."
@@ -50,20 +50,20 @@ if is_service_enabled snap-stack; then
         copy_service_file
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-        echo_summary "Configurazione plugin Snap Stack..."
-        configure_snap_stack_plugin
+        echo_summary "Configurazione plugin Green Cloud..."
+        configure_green_cloud_plugin
 
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
-        echo_summary "Esecuzione Snap Stack Plugin..."
-        start_snap_stack_plugin
+        echo_summary "Esecuzione Green Cloud Plugin..."
+        start_green_cloud_plugin
     fi
 
     if [[ "$1" == "unstack" ]]; then
-        echo_summary "Arresto servizio Snap Stack..."
-        sudo systemctl stop snap-stack.service || { echo "Errore nell'arresto"; exit 1; }
+        echo_summary "Arresto servizio Green Cloud..."
+        sudo systemctl stop green-cloud.service || { echo "Errore nell'arresto"; exit 1; }
     fi
 
     if [[ "$1" == "clean" ]]; then
-        sudo rm -f $SYSTEMD_DIR/snap-stack.service
+        sudo rm -f $SYSTEMD_DIR/green-cloud.service
     fi
 fi
