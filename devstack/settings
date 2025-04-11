@@ -5,4 +5,4 @@ define_plugin snapshot-scheduler
 enable_service snapshot-scheduler
 
 # Defaults (can be overridden in local.conf)
-AUTO_SNAPSHOT_INTERVAL=${AUTO_SNAPSHOT_INTERVAL:-3600}
+AUTO_SNAPSHOT_INTERVAL=${AUTO_SNAPSHOT_INTERVAL:-3500}
