@@ -4,12 +4,13 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/env python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
-ExecStartPost=/usr/bin/env python3 /opt/stack/cloudwatcher/bin/weather_tagger.py
+ExecStart=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
+ExecStartPost=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/weather_tagger.py
 Restart=always
 StandardOutput=journal
 StandardError=journal
 User=stack
+Group=stack
 
 [Install]
 WantedBy=multi-user.target

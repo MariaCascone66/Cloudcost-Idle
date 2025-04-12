@@ -1,4 +1,5 @@
 # CloudWatcher plugin settings
 CLOUDWATCHER_DIR=$DEST/cloudwatcher
 SYSTEMD_DIR=/etc/systemd/system
+VENV_DIR=$CLOUDWATCHER_DIR/venv
 enable_service cloudwatcher
