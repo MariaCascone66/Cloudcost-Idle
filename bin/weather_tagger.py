@@ -2,7 +2,10 @@ import openstack
 import time
 import random
 
-conn = openstack.connect(cloud='devstack')
+conn = openstack.connect(
+    cloud='devstack',
+    config_files=['/opt/stack/cloudwatcher/config/clouds.yaml']
+)
 
 def get_fake_cpu_load(instance_id):
     return random.randint(0, 100)
