@@ -1,8 +1,17 @@
 from flask import Flask, render_template
 import openstack
+import os
 
 app = Flask(__name__)
-conn = openstack.connect()
+
+# Usa la variabile d'ambiente per caricare il file di configurazione
+clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+
+# Connessione a OpenStack con il file di configurazione
+conn = openstack.connect(
+    cloud='devstack',
+    config_files=[clouds_yaml]
+)
 
 @app.route('/')
 def index():
