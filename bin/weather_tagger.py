@@ -1,16 +1,24 @@
-from flask import Flask, render_template
+import openstack
+import time
 import random
 
-app = Flask(__name__)
+conn = openstack.connect()
 
-# Dummy simulated data for demonstration
-data = [
-    {"name": "demo-instance", "cpu": random.randint(10, 80), "ram": random.randint(256, 2048), "co2": round(random.uniform(0.5, 5.0), 2)}
-]
+def get_fake_cpu_load(instance_id):
+    return random.randint(0, 100)
 
-@app.route("/")
-def index():
-    return render_template("index.html", instances=data)
+def get_weather(cpu):
+    if cpu < 30:
+        return "☀️ Sunny"
+    elif cpu < 70:
+        return "🌤️ Cloudy"
+    else:
+        return "🌩️ Stormy"
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+while True:
+    for server in conn.compute.servers():
+        cpu = get_fake_cpu_load(server.id)
+        weather = get_weather(cpu)
+        conn.compute.set_server_metadata(server, {"weather": weather})
+        print(f"[Tagger] {server.name} → {weather}")
+    time.sleep(60)

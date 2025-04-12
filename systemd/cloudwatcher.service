@@ -1,0 +1,15 @@
+[Unit]
+Description=CloudWatcher Dashboard and Tagger
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
+ExecStartPost=/usr/bin/env python3 /opt/stack/cloudwatcher/bin/weather_tagger.py
+Restart=always
+StandardOutput=journal
+StandardError=journal
+User=stack
+
+[Install]
+WantedBy=multi-user.target

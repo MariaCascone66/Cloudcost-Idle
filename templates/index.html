@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CloudWatcher Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h2>🌤️ VM Status</h2>
+    <table>
+        <tr><th>Name</th><th>ID</th><th>Weather</th></tr>
+        {% for vm in servers %}
+        <tr><td>{{ vm.name }}</td><td>{{ vm.id }}</td><td>{{ vm.weather }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>📊 Project Quotas</h2>
+    <table>
+        <tr><th>Project</th><th>ID</th><th>CPU</th><th>RAM (MB)</th></tr>
+        {% for p in projects %}
+        <tr><td>{{ p.name }}</td><td>{{ p.id }}</td><td>{{ p.cpu }}</td><td>{{ p.ram }}</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

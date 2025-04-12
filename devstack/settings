@@ -1,3 +1,4 @@
-# Settings Openstack
-enable_service green-cloud
-
+# CloudWatcher plugin settings
+CLOUDWATCHER_DIR=$DEST/cloudwatcher
+SYSTEMD_DIR=/etc/systemd/system
+enable_service cloudwatcher

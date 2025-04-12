@@ -1,69 +1,63 @@
 #!/bin/bash
 
-# Source common DevStack functions
-source $TOP_DIR/functions
-source $TOP_DIR/lib/nova
-
-# Plugin settings
-PLUGIN_NAME=green-cloud
-SYSTEMD_DIR=/etc/systemd/system
-
 function install_flask_dependencies {
-    sudo apt-get update
-    sudo apt-get install -y python3-pip
-    sudo pip3 install -r $DEST/green-cloud-plugin/webapp/requirements.txt
-}
-
-function configure_green_cloud_plugin {
-    echo "Green Cloud Plugin configured"
-}
-
-function start_green_cloud_plugin {
-    echo "Starting Green Cloud Plugin web app..."
-    sudo systemctl daemon-reexec
-    sudo systemctl daemon-reload
-    sudo systemctl enable green-cloud.service
-    sudo systemctl restart green-cloud.service
+    echo "Installing Flask and OpenStack SDK..."
+    pip_install -r $CLOUDWATCHER_DIR/requirements.txt
 }
 
 function copy_service_file {
-    sudo cp $DEST/green-cloud-plugin/green-cloud.service $SYSTEMD_DIR/
+    echo "Copying systemd service file..."
+    sudo cp $CLOUDWATCHER_DIR/systemd/cloudwatcher.service $SYSTEMD_DIR/cloudwatcher.service
+    sudo systemctl daemon-reexec
+    sudo systemctl daemon-reload
 }
 
-function create_demo_instance {
-    echo "Creating demo instance..."
-    source $TOP_DIR/openrc admin admin
-    openstack server create --flavor m1.small --image cirros --network private demo-instance || echo "Demo instance already exists or failed"
+function configure_cloudwatcher_plugin {
+    echo "Configuring CloudWatcher plugin..."
+    # Add extra config here if needed
 }
 
-if is_service_enabled $PLUGIN_NAME; then
+function start_cloudwatcher_plugin {
+    echo "Starting CloudWatcher service..."
+    sudo systemctl start cloudwatcher.service || { echo "Failed to start service"; exit 1; }
+}
+
+function stop_cloudwatcher_plugin {
+    echo "Stopping CloudWatcher service..."
+    sudo systemctl stop cloudwatcher.service || { echo "Failed to stop service"; exit 1; }
+}
+
+function clean_cloudwatcher_plugin {
+    echo "Cleaning CloudWatcher files..."
+    sudo rm -f $SYSTEMD_DIR/cloudwatcher.service
+}
+
+if is_service_enabled cloudwatcher; then
+
     if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
-        echo_summary "No pre-install actions for $PLUGIN_NAME"
+        echo_summary "CloudWatcher: No pre-install actions."
 
     elif [[ "$1" == "stack" && "$2" == "install" ]]; then
-        echo_summary "Installing Flask dependencies"
+        echo_summary "CloudWatcher: Installing dependencies"
         install_flask_dependencies
         copy_service_file
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-        echo_summary "Configuring $PLUGIN_NAME"
-        configure_green_cloud_plugin
+        echo_summary "CloudWatcher: Post configuration"
+        configure_cloudwatcher_plugin
 
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
-        create_demo_instance
-        start_green_cloud_plugin
+        echo_summary "CloudWatcher: Starting service"
+        start_cloudwatcher_plugin
     fi
 
     if [[ "$1" == "unstack" ]]; then
-        echo_summary "Stopping Green Cloud Plugin service"
-        sudo systemctl stop green-cloud.service
+        echo_summary "CloudWatcher: Stopping service"
+        stop_cloudwatcher_plugin
     fi
 
     if [[ "$1" == "clean" ]]; then
-        sudo rm "$SYSTEMD_DIR/green-cloud.service"
+        echo_summary "CloudWatcher: Cleaning service"
+        clean_cloudwatcher_plugin
     fi
 fi
-
-# settings
-
-enable_service green-cloud
