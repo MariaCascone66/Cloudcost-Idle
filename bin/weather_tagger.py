@@ -2,7 +2,7 @@ import openstack
 import time
 import random
 
-conn = openstack.connect()
+conn = openstack.connect(cloud='devstack')
 
 def get_fake_cpu_load(instance_id):
     return random.randint(0, 100)

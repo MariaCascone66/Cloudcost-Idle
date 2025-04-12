@@ -14,6 +14,7 @@ function install_flask_dependencies {
 
     # Installa le dipendenze dal requirements.txt
     if [[ -f "$CLOUDWATCHER_DIR/requirements.txt" ]]; then
+        pip install --upgrade pip
         pip install -r "$CLOUDWATCHER_DIR/requirements.txt" || { echo "Failed to install dependencies"; exit 1; }
     else
         echo "requirements.txt not found!"
@@ -32,12 +33,6 @@ function copy_service_file {
     sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher.service" "$SYSTEMD_DIR/cloudwatcher.service"
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
-}
-
-# Funzione per configurare il plugin CloudWatcher
-function configure_cloudwatcher_plugin {
-    echo "Configuring CloudWatcher plugin..."
-    # Configurazioni aggiuntive se necessarie
 }
 
 # Funzione per avviare il servizio CloudWatcher
@@ -61,17 +56,10 @@ function clean_cloudwatcher_plugin {
 # Verifica se il servizio è abilitato
 if is_service_enabled cloudwatcher; then
 
-    if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
-        echo_summary "CloudWatcher: No pre-install actions."
-
     elif [[ "$1" == "stack" && "$2" == "install" ]]; then
         echo_summary "CloudWatcher: Installing dependencies"
         install_flask_dependencies
         copy_service_file
-
-    elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-        echo_summary "CloudWatcher: Post configuration"
-        configure_cloudwatcher_plugin
 
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
         echo_summary "CloudWatcher: Starting service"

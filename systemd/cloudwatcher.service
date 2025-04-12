@@ -6,11 +6,10 @@ After=network.target
 Type=simple
 ExecStart=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
 ExecStartPost=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/weather_tagger.py
-Restart=always
+RemainAfterExit=true
 StandardOutput=journal
 StandardError=journal
 User=stack
-Group=stack
 
 [Install]
 WantedBy=multi-user.target
