@@ -56,7 +56,7 @@ function clean_cloudwatcher_plugin {
 # Verifica se il servizio è abilitato
 if is_service_enabled cloudwatcher; then
 
-    elif [[ "$1" == "stack" && "$2" == "install" ]]; then
+    if [[ "$1" == "stack" && "$2" == "install" ]]; then
         echo_summary "CloudWatcher: Installing dependencies"
         install_flask_dependencies
         copy_service_file
