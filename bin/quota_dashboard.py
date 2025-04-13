@@ -38,4 +38,5 @@ def index():
     return render_template('index.html', servers=servers, projects=project_data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5001)

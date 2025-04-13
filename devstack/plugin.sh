@@ -29,28 +29,31 @@ function install_flask_dependencies {
 
 # Funzione per copiare il file di servizio systemd
 function copy_service_file {
-    echo "Copying systemd service file..."
-    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher.service" "$SYSTEMD_DIR/cloudwatcher.service"
+    echo "Copying systemd service files..."
+    sudo cp "$CLOUDWATCHER_DIR/systemd/"cloudwatcher-*.service "$SYSTEMD_DIR/"
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
 }
 
 # Funzione per avviare il servizio CloudWatcher
 function start_cloudwatcher_plugin {
-    echo "Starting CloudWatcher service..."
-    sudo systemctl start cloudwatcher.service || { echo "Failed to start service"; exit 1; }
+    echo "Starting CloudWatcher services..."
+    sudo systemctl start cloudwatcher-dashboard.service || { echo "Failed to start dashboard"; exit 1; }
+    sudo systemctl start cloudwatcher-tagger.service || { echo "Failed to start tagger"; exit 1; }
 }
 
 # Funzione per fermare il servizio CloudWatcher
 function stop_cloudwatcher_plugin {
-    echo "Stopping CloudWatcher service..."
-    sudo systemctl stop cloudwatcher.service || { echo "Failed to stop service"; exit 1; }
+    echo "Stopping CloudWatcher services..."
+    sudo systemctl stop cloudwatcher-dashboard.service
+    sudo systemctl stop cloudwatcher-tagger.service
 }
 
 # Funzione per pulire i file CloudWatcher
 function clean_cloudwatcher_plugin {
-    echo "Cleaning CloudWatcher files..."
-    sudo rm -f "$SYSTEMD_DIR/cloudwatcher.service"
+    echo "Cleaning CloudWatcher service files..."
+    sudo rm -f "$SYSTEMD_DIR/cloudwatcher-dashboard.service"
+    sudo rm -f "$SYSTEMD_DIR/cloudwatcher-tagger.service"
 }
 
 # Verifica se il servizio è abilitato
