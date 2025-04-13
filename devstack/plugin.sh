@@ -30,7 +30,8 @@ function install_flask_dependencies {
 # Funzione per copiare il file di servizio systemd
 function copy_service_file {
     echo "Copying systemd service files..."
-    sudo cp "$CLOUDWATCHER_DIR/systemd/"cloudwatcher-*.service "$SYSTEMD_DIR/"
+    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher-dashboard.service" "$SYSTEMD_DIR/"
+    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher-tagger.service" "$SYSTEMD_DIR/"
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
 }

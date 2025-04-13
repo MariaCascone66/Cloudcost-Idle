@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 Environment="OS_CLOUDS_YAML=/opt/stack/cloudwatcher/config/clouds.yaml"
 ExecStart=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/weather_tagger.py
-Restart=on-failure
+Restart=always
 User=stack
 
 [Install]
