@@ -30,8 +30,8 @@ function install_flask_dependencies {
 # Funzione per copiare il file di servizio systemd
 function copy_service_file {
     echo "Copying systemd service files..."
-    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher-dashboard.service" "$SYSTEMD_DIR/"
-    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher-tagger.service" "$SYSTEMD_DIR/"
+    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher_dashboard.service" "$SYSTEMD_DIR/"
+    sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher_tagger.service" "$SYSTEMD_DIR/"
     sudo systemctl daemon-reexec
     sudo systemctl daemon-reload
 }
@@ -39,22 +39,22 @@ function copy_service_file {
 # Funzione per avviare il servizio CloudWatcher
 function start_cloudwatcher_plugin {
     echo "Starting CloudWatcher services..."
-    sudo systemctl start cloudwatcher-dashboard.service || { echo "Failed to start dashboard"; exit 1; }
-    sudo systemctl start cloudwatcher-tagger.service || { echo "Failed to start tagger"; exit 1; }
+    sudo systemctl start cloudwatcher_dashboard.service || { echo "Failed to start dashboard"; exit 1; }
+    sudo systemctl start cloudwatcher_tagger.service || { echo "Failed to start tagger"; exit 1; }
 }
 
 # Funzione per fermare il servizio CloudWatcher
 function stop_cloudwatcher_plugin {
     echo "Stopping CloudWatcher services..."
-    sudo systemctl stop cloudwatcher-dashboard.service
-    sudo systemctl stop cloudwatcher-tagger.service
+    sudo systemctl stop cloudwatcher_dashboard.service
+    sudo systemctl stop cloudwatcher-_tagger.service
 }
 
 # Funzione per pulire i file CloudWatcher
 function clean_cloudwatcher_plugin {
     echo "Cleaning CloudWatcher service files..."
-    sudo rm -f "$SYSTEMD_DIR/cloudwatcher-dashboard.service"
-    sudo rm -f "$SYSTEMD_DIR/cloudwatcher-tagger.service"
+    sudo rm -f "$SYSTEMD_DIR/cloudwatcher_dashboard.service"
+    sudo rm -f "$SYSTEMD_DIR/cloudwatcher_tagger.service"
 }
 
 # Verifica se il servizio è abilitato
@@ -65,8 +65,7 @@ if is_service_enabled cloudwatcher; then
         install_flask_dependencies
         copy_service_file
 
-    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
-        echo_summary "CloudWatcher: Starting service"
+    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then        echo_summary "CloudWatcher: Starting service"
         start_cloudwatcher_plugin
     fi
 
