@@ -1,42 +1,38 @@
-from flask import Flask, render_template
 import openstack
+import time
+import random
 import os
+import logging
+from openstack.config import OpenStackConfig
 
-app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Usa la variabile d'ambiente per caricare il file di configurazione
-clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+# Configurazione OpenStack
+cloud_name = 'devstack'
+config_path = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+config = OpenStackConfig(config_files=[config_path])
+conn = config.get_one_cloud(cloud=cloud_name).connect()
 
-# Connessione a OpenStack con il file di configurazione
-conn = openstack.connect(
-    cloud='devstack',
-    config_files=[clouds_yaml]
-)
+def get_fake_cpu_load(instance_id):
+    return random.randint(0, 100)
 
-@app.route('/')
-def index():
-    servers = list(conn.compute.servers())
-    projects = list(conn.identity.projects())
+def get_weather(cpu):
+    if cpu < 30:
+        return "☀️ Sunny"
+    elif cpu < 70:
+        return "🌤️ Cloudy"
+    else:
+        return "🌩️ Stormy"
 
-    project_data = []
-    for project in projects:
+logging.info("Weather Tagger avviato...")
+
+while True:
+    for server in conn.compute.servers():
+        cpu = get_fake_cpu_load(server.id)
+        weather = get_weather(cpu)
         try:
-            quotas = conn.get_compute_quotas(project.id)
-            used = conn.get_compute_usage(project.id)
-            project_data.append({
-                'name': project.name,
-                'id': project.id,
-                'cpu': f"{used.total_vcpus_usage:.0f}/{quotas.cores}",
-                'ram': f"{used.total_memory_mb_usage:.0f}/{quotas.ram}",
-            })
-        except Exception:
-            continue
-
-    for s in servers:
-        s.weather = s.metadata.get('weather', '❓')
-
-    return render_template('index.html', servers=servers, projects=project_data)
-
-if __name__ == '__main__':
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=5001)
+            conn.compute.set_server_metadata(server, {"weather": weather})
+            logging.info(f"[WeatherTagger] {server.name} ({server.id}) → CPU: {cpu}% → {weather}")
+        except Exception as e:
+            logging.warning(f"Errore aggiornando metadati per {server.name}: {e}")
+    time.sleep(60)

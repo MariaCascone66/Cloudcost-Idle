@@ -1,12 +1,12 @@
 clouds:
   devstack:
     auth:
-      auth_url: http://127.0.0.1:5000
+      auth_url: http://10.0.2.15/identity
       username: admin
       password: secret
       project_name: admin
-      user_domain_name: default
-      project_domain_name: default
+      user_domain_name: Default
+      project_domain_name: Default
     region_name: RegionOne
     interface: public
     identity_api_version: 3
