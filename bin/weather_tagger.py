@@ -3,10 +3,8 @@ import time
 import random
 import os
 
-# Usa la variabile d'ambiente per caricare il file di configurazione
+# Connessione a OpenStack con clouds.yaml
 clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
-
-# Connessione a OpenStack con il file di configurazione
 conn = openstack.connect(
     cloud='devstack',
     config_files=[clouds_yaml]
