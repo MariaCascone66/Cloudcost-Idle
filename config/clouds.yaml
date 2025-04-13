@@ -2,9 +2,9 @@ clouds:
   devstack:
     auth:
       auth_url: http://127.0.0.1:5000
-      username: demo
+      username: admin
       password: secret
-      project_name: demo
+      project_name: admin
       user_domain_name: default
       project_domain_name: default
     region_name: RegionOne
