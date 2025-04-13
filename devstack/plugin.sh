@@ -47,7 +47,7 @@ function start_cloudwatcher_plugin {
 function stop_cloudwatcher_plugin {
     echo "Stopping CloudWatcher services..."
     sudo systemctl stop cloudwatcher_dashboard.service
-    sudo systemctl stop cloudwatcher-_tagger.service
+    sudo systemctl stop cloudwatcher_tagger.service
 }
 
 # Funzione per pulire i file CloudWatcher
