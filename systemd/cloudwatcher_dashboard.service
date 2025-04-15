@@ -5,7 +5,6 @@ After=network.target
 [Service]
 Type=simple
 Environment="OS_CLOUDS_YAML=/opt/stack/cloudwatcher/config/clouds.yaml"
-Environment=OS_CLOUD_NAME=devstack-admin
 ExecStart=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
 Restart=always
 User=stack

@@ -6,13 +6,12 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Logging informativo
 logging.info("Quota Dashboard in esecuzione su http://0.0.0.0:5001")
 
-# Connessione a OpenStack con clouds.yaml
+# Connessione a OpenStack con configurazione YAML
 clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
 conn = openstack.connect(
-    cloud=os.getenv("OS_CLOUD_NAME", "devstack"),
+    cloud="devstack-admin",
     config_files=[clouds_yaml]
 )
 
