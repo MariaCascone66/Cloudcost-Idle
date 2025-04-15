@@ -11,17 +11,23 @@ logging.basicConfig(level=logging.INFO)
 # Connessione a OpenStack
 #clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
 
-conn = connection.Connection(
-    auth_url="http://10.0.2.15/identity",
-    project_name="admin",
-    username="admin",
-    password="secret",
-    user_domain_name="Default",
-    project_domain_name="Default",
-    region_name="RegionOne",
-    interface="public",
-    identity_api_version='3'
-)
+#conn = connection.Connection(
+#    auth_url="http://10.0.2.15/identity",
+#    project_name="admin",
+#    username="admin",
+#    password="secret",
+#    user_domain_name="Default",
+#    project_domain_name="Default",
+#    region_name="RegionOne",
+#    interface="public",
+#    identity_api_version='3'
+#)
+
+# Imposta la variabile d'ambiente per puntare al clouds.yaml corretto
+os.environ['OS_CLOUDS_YAML'] = '/opt/stack/cloudwatcher/config/clouds.yaml'
+
+# Connessione a OpenStack
+conn = openstack.connect(cloud='devstack')
 
 
 def get_fake_cpu_load(instance_id):
