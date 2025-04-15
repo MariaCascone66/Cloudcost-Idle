@@ -4,9 +4,9 @@ import random
 import os
 
 # Connessione a OpenStack con clouds.yaml
-clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+cloud_name = os.getenv('OS_CLOUD_NAME', 'devstack-admin')  # default a devstack-admin
 conn = openstack.connect(
-    cloud='devstack',
+    cloud=cloud_name,
     config_files=[clouds_yaml]
 )
 
