@@ -36,6 +36,19 @@ function copy_service_file {
     sudo systemctl daemon-reload
 }
 
+# Funzione per assegnare ruoli all'utente admin
+function assign_roles {
+    echo "Assegnazione dei ruoli all'utente admin..."
+
+    # Verifica se il ruolo admin è già assegnato
+    if ! openstack role assignment list --user admin --system all --names | grep -q 'admin'; then
+        echo "Assegnazione del ruolo 'admin' all'utente 'admin' sul sistema..."
+        openstack role add --user admin --system all --role admin
+    else
+        echo "Il ruolo 'admin' è già assegnato all'utente 'admin'."
+    fi
+}
+
 # Funzione per avviare il servizio CloudWatcher
 function start_cloudwatcher_plugin {
     echo "Starting CloudWatcher services..."
@@ -65,7 +78,12 @@ if is_service_enabled cloudwatcher; then
         install_flask_dependencies
         copy_service_file
 
-    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then        echo_summary "CloudWatcher: Starting service"
+    elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
+        echo_summary "CloudWatcher: Configuring service"
+        assign_roles
+
+    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
+        echo_summary "CloudWatcher: Starting service"
         start_cloudwatcher_plugin
     fi
 
