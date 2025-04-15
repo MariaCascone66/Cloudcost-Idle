@@ -4,15 +4,25 @@ import time
 import random
 import os
 import logging
+from openstack import connection
 
 logging.basicConfig(level=logging.INFO)
 
 # Connessione a OpenStack
-clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
-conn = openstack.connect(
-    cloud="devstack",
-    config_files=[clouds_yaml]
+#clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+
+conn = connection.Connection(
+    auth_url="http://10.0.2.15/identity",
+    project_name="admin",
+    username="admin",
+    password="secret",
+    user_domain_name="Default",
+    project_domain_name="Default",
+    region_name="RegionOne",
+    interface="public",
+    identity_api_version='3'
 )
+
 
 def get_fake_cpu_load(instance_id):
     return random.randint(0, 100)
