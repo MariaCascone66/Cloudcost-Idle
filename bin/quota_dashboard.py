@@ -11,7 +11,7 @@ logging.info("Quota Dashboard in esecuzione su http://0.0.0.0:5001")
 # Connessione a OpenStack
 clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
 conn = openstack.connect(
-    cloud="cloudwatcher-devstack",
+    cloud="devstack",
     config_files=[clouds_yaml]
 )
 
