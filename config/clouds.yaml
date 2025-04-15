@@ -1,5 +1,5 @@
 clouds:
-  devstack:
+  cloudwatcher-devstack:
     auth:
       auth_url: http://10.0.2.15/identity
       username: admin
