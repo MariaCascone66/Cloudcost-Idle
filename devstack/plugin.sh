@@ -4,15 +4,12 @@
 function install_flask_dependencies {
     echo "Installing Flask and dependencies..."
 
-    # Verifica se il venv esiste già, altrimenti lo crea
     if [[ ! -d "$VENV_DIR" ]]; then
         python3 -m venv "$VENV_DIR" || { echo "Failed to create virtual environment"; exit 1; }
     fi
 
-    # Attiva il venv
     source "$VENV_DIR/bin/activate"
 
-    # Installa le dipendenze dal requirements.txt
     if [[ -f "$CLOUDWATCHER_DIR/requirements.txt" ]]; then
         pip install --upgrade pip
         pip install -r "$CLOUDWATCHER_DIR/requirements.txt" || { echo "Failed to install dependencies"; exit 1; }
@@ -20,14 +17,12 @@ function install_flask_dependencies {
         echo "requirements.txt not found!"
         exit 1
     fi
-    
-    echo "Dependencies installed successfully"
 
-    # Disattiva il venv
+    echo "Dependencies installed successfully"
     deactivate
 }
 
-# Funzione per copiare il file di servizio systemd
+# Funzione per copiare i file systemd
 function copy_service_file {
     echo "Copying systemd service files..."
     sudo cp "$CLOUDWATCHER_DIR/systemd/cloudwatcher_dashboard.service" "$SYSTEMD_DIR/"
@@ -36,51 +31,55 @@ function copy_service_file {
     sudo systemctl daemon-reload
 }
 
-# Funzione per assegnare ruoli all'utente admin
-function assign_roles {
-    echo "Assegnazione dei ruoli all'utente admin..."
-
-    # Verifica se il ruolo admin è già assegnato
-    if ! openstack role assignment list --user admin --system all --names | grep -q 'admin'; then
-        echo "Assegnazione del ruolo 'admin' all'utente 'admin' sul sistema..."
-        openstack role add --user admin --system all --role admin
-    else
-        echo "Il ruolo 'admin' è già assegnato all'utente 'admin'."
-    fi
-}
-
-# Funzione per avviare il servizio CloudWatcher
+# Funzione per avviare i servizi
 function start_cloudwatcher_plugin {
     echo "Starting CloudWatcher services..."
     sudo systemctl start cloudwatcher_dashboard.service || { echo "Failed to start dashboard"; exit 1; }
     sudo systemctl start cloudwatcher_tagger.service || { echo "Failed to start tagger"; exit 1; }
 }
 
-# Funzione per fermare il servizio CloudWatcher
+# Funzione per fermare i servizi
 function stop_cloudwatcher_plugin {
     echo "Stopping CloudWatcher services..."
     sudo systemctl stop cloudwatcher_dashboard.service
     sudo systemctl stop cloudwatcher_tagger.service
 }
 
-# Funzione per pulire i file CloudWatcher
+# Pulizia dei file systemd
 function clean_cloudwatcher_plugin {
     echo "Cleaning CloudWatcher service files..."
     sudo rm -f "$SYSTEMD_DIR/cloudwatcher_dashboard.service"
     sudo rm -f "$SYSTEMD_DIR/cloudwatcher_tagger.service"
 }
 
-# Verifica se il servizio è abilitato
+# Funzione per configurare i ruoli OpenStack
+function configure_cloudwatcher_roles {
+    echo "Configuring OpenStack roles for CloudWatcher..."
+
+    source /opt/stack/devstack/openrc admin admin
+
+    if ! openstack role assignment list --user admin --system all --names | grep -q "admin"; then
+        echo "Assegnazione ruolo admin all'utente admin (system scope)..."
+        openstack role add --user admin --system all --role admin
+    else
+        echo "L'utente admin ha già il ruolo admin a livello di sistema."
+    fi
+}
+
+# Inizio logica plugin
 if is_service_enabled cloudwatcher; then
 
-    if [[ "$1" == "stack" && "$2" == "install" ]]; then
+    if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
+        echo_summary "CloudWatcher: Nessun pacchetto da installare"
+
+    elif [[ "$1" == "stack" && "$2" == "install" ]]; then
         echo_summary "CloudWatcher: Installing dependencies"
         install_flask_dependencies
         copy_service_file
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-        echo_summary "CloudWatcher: Configuring service"
-        assign_roles
+        echo_summary "CloudWatcher: Configurazione ruoli OpenStack"
+        configure_cloudwatcher_roles
 
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
         echo_summary "CloudWatcher: Starting service"
