@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask, render_template
 import openstack
 import os
@@ -5,7 +6,6 @@ import logging
 
 app = Flask(__name__, template_folder='/opt/stack/cloudwatcher/templates')
 logging.basicConfig(level=logging.INFO)
-
 logging.info("Quota Dashboard in esecuzione su http://0.0.0.0:5001")
 
 # Connessione a OpenStack
@@ -31,7 +31,8 @@ def index():
                 'cpu': f"{used.total_vcpus_usage:.0f}/{quotas.cores}",
                 'ram': f"{used.total_memory_mb_usage:.0f}/{quotas.ram}",
             })
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Errore nel recupero delle quote per {project.name}: {e}")
             continue
 
     for s in servers:

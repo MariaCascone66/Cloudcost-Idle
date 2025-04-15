@@ -1,7 +1,11 @@
+#!/usr/bin/env python3
 import openstack
 import time
 import random
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 # Connessione a OpenStack
 clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
@@ -22,9 +26,10 @@ def get_weather(cpu):
         return "🌩️ Stormy"
 
 while True:
-    for server in conn.compute.servers():
+    servers = list(conn.compute.servers())
+    for server in servers:
         cpu = get_fake_cpu_load(server.id)
         weather = get_weather(cpu)
         conn.compute.set_server_metadata(server, {"weather": weather})
-        print(f"[Tagger] {server.name} → {weather}")
+        logging.info(f"[Tagger] {server.name} → {weather}")
     time.sleep(60)
