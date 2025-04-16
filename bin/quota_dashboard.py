@@ -10,25 +10,19 @@ logging.basicConfig(level=logging.INFO)
 logging.info("Quota Dashboard in esecuzione su http://0.0.0.0:5001")
 
 # Connessione a OpenStack
-#clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
+clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
 
-#conn = connection.Connection(
-#    auth_url="http://10.0.2.15/identity",
-#    project_name="admin",
-#    username="admin",
-#    password="secret",
-#    user_domain_name="Default",
-#    project_domain_name="Default",
-#    region_name="RegionOne",
-#    interface="public",
-#    identity_api_version='3'
-#)
-
-# Imposta la variabile d'ambiente per puntare al clouds.yaml corretto
-os.environ['OS_CLOUDS_YAML'] = '/opt/stack/cloudwatcher/config/clouds.yaml'
-
-# Connessione a OpenStack
-conn = openstack.connect(cloud='devstack')
+conn = connection.Connection(
+    auth_url="http://10.0.2.15/identity",
+    project_name="admin",
+    username="admin",
+    password="secret",
+    user_domain_name="Default",
+    project_domain_name="Default",
+    region_name="RegionOne",
+    interface="public",
+    identity_api_version='3'
+)
 
 @app.route('/')
 def index():
