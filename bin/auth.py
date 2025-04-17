@@ -4,7 +4,10 @@ import logging
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from openstack import connection
+from dotenv import load_dotenv 
 
+
+load_dotenv("/opt/stack/cloudwatcher/config/openstack.env") 
 def get_openstack_connection():
     try:
         auth_args = {
