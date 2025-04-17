@@ -14,8 +14,6 @@ def get_openstack_connection():
             'project_name': os.environ['OS_PROJECT_NAME'],
             'user_domain_id': os.environ['OS_USER_DOMAIN_ID'],
             'project_domain_id': os.environ['OS_PROJECT_DOMAIN_ID'],
-            'region_name': os.environ['OS_REGION_NAME'],
-            'volume_api_version': os.environ['OS_VOLUME_API_VERSION'],
         }
 
         auth = v3.Password(**auth_args)
