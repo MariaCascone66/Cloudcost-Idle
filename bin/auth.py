@@ -19,7 +19,15 @@ def get_openstack_connection():
         auth = v3.Password(**auth_args)
         # Create a session
         sess = session.Session(auth=auth)
-        return connection.Connection(session=sess, region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'))
+        return connection.Connection(    
+            auth_url=os.environ['OS_AUTH_URL'],
+            project_name=os.environ['OS_PROJECT_NAME'],
+            username=os.environ['OS_USERNAME'],
+            password=os.environ['OS_PASSWORD'],
+            user_domain_id=os.environ['OS_USER_DOMAIN_ID'],
+            project_domain_id=os.environ['OS_PROJECT_DOMAIN_ID'],
+            region_name=os.environ.get('OS_REGION_NAME', 'RegionOne')
+    )
 
     except KeyError as missing:
         logging.error(f"Missing environment variable: {missing}")
