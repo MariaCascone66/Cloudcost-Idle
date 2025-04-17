@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=/opt/stack/cloudwatcher/config/openstack.env
 ExecStart=/bin/bash -c "source /opt/stack/devstack/openrc admin admin && /opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py"
 Restart=always
 User=stack
