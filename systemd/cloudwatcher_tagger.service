@@ -5,7 +5,6 @@ After=network.target
 [Service]
 Type=simple
 Environment=OS_AUTH_URL=http://10.0.2.15/identity
-Environment=OS_AUTH_TYPE=password
 Environment=OS_USERNAME=admin
 Environment=OS_PASSWORD=secret
 Environment=OS_PROJECT_NAME=admin

@@ -9,7 +9,6 @@ def get_openstack_connection():
     try:
         auth_args = {
             'auth_url': os.environ['OS_AUTH_URL'],
-            'auth_type': os.environ['OS_AUTH_TYPE'],
             'username': os.environ['OS_USERNAME'],
             'password': os.environ['OS_PASSWORD'],
             'project_name': os.environ['OS_PROJECT_NAME'],
@@ -18,7 +17,7 @@ def get_openstack_connection():
             'region_name': os.environ['OS_REGION_NAME'],
             'volume_api_version': os.environ['OS_VOLUME_API_VERSION'],
         }
-        
+
         auth = v3.Password(**auth_args)
         # Create a session
         sess = session.Session(auth=auth)
