@@ -2,5 +2,4 @@
 CLOUDWATCHER_DIR=$DEST/cloudwatcher
 SYSTEMD_DIR=/etc/systemd/system
 VENV_DIR=$CLOUDWATCHER_DIR/venv
-OS_CLOUDS_YAML="/opt/stack/cloudwatcher/config/clouds.yaml"
 enable_service cloudwatcher

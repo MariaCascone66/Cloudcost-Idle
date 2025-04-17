@@ -19,6 +19,7 @@ function install_flask_dependencies {
     fi
 
     echo "Dependencies installed successfully"
+    pip list  # Mostra tutti i pacchetti installati
     deactivate
 }
 
@@ -68,6 +69,11 @@ function configure_cloudwatcher_roles {
 
 # Inizio logica plugin
 if is_service_enabled cloudwatcher; then
+
+    echo "DEBUG: CLOUDWATCHER_DIR = $CLOUDWATCHER_DIR"
+    echo "DEBUG: VENV_DIR = $VENV_DIR"
+    echo "DEBUG: SYSTEMD_DIR = $SYSTEMD_DIR"
+
 
     if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
         echo_summary "CloudWatcher: Nessun pacchetto da installare"
