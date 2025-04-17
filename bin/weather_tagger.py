@@ -1,33 +1,11 @@
-#!/usr/bin/env python3
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import openstack
+# cloudwatcher/bin/weather_tagger.py
 import time
 import random
-import os
 import logging
-from openstack import connection
 from auth import get_openstack_connection
 
 logging.basicConfig(level=logging.INFO)
-
-# Connessione a OpenStack
 conn = get_openstack_connection()
-#clouds_yaml = os.getenv('OS_CLOUDS_YAML', '/opt/stack/cloudwatcher/config/clouds.yaml')
-
-#conn = connection.Connection(
-#    auth_url="http://10.0.2.15/identity",
-#    project_name="admin",
-#    username="admin",
-#    password="secret",
-#    user_domain_name="Default",
-#    project_domain_name="Default",
-#    region_name="RegionOne",
-#    interface="public",
-#    identity_api_version='3'
-#)
-
 
 def get_fake_cpu_load(instance_id):
     return random.randint(0, 100)

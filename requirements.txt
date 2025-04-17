@@ -2,5 +2,3 @@ Flask==3.0.0
 openstacksdk==1.0.0
 waitress==2.1.2
 keystoneauth1==5.2.0
-six==1.17.0
-python-dotenv==1.1.0
