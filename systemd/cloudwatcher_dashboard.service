@@ -4,14 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-Environment="OS_AUTH_URL=http://10.0.2.15/identity"
-Environment="OS_USERNAME=admin"
-Environment="OS_PASSWORD=secret"
-Environment="OS_PROJECT_NAME=admin"
-Environment="OS_USER_DOMAIN_NAME=Default"
-Environment="OS_PROJECT_DOMAIN_NAME=Default"
-Environment="OS_REGION_NAME=RegionOne"
-ExecStart=/opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py
+ExecStart=/bin/bash -c "source /opt/stack/devstack/openrc admin admin && /opt/stack/cloudwatcher/venv/bin/python3 /opt/stack/cloudwatcher/bin/quota_dashboard.py"
 Restart=always
 User=stack
 
