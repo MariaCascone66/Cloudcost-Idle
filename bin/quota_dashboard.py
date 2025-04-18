@@ -40,6 +40,25 @@ def index():
         s.sim_ram = s.metadata.get('sim_ram', 'N/A')
         s.sim_disk = s.metadata.get('sim_disk', 'N/A')
 
+        s.tags = []
+
+        if s.status == "ERROR":
+            s.tags.append(('🚫', "La VM è in stato di errore."))
+
+        sec_groups = s.security_groups if hasattr(s, 'security_groups') else []
+        if any(g['name'] == "restricted" for g in sec_groups):
+            s.tags.append(('🔒', "Gruppo di sicurezza 'restricted' attivo."))
+
+        has_floating_ip = any(
+            addr.get("OS-EXT-IPS:type") == "floating"
+            for net in s.addresses.values()
+            for addr in net
+        )
+        if has_floating_ip:
+            s.tags.append(('🌍', "Ha un IP pubblico (floating IP)."))
+
+        s.tags.append(('🌤️', f"Condizione meteo simulata basata sul carico."))
+
     return render_template('index.html', servers=servers, projects=project_data)
 
 @app.route('/create_vm', methods=['GET', 'POST'])
