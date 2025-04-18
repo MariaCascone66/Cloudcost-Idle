@@ -2,6 +2,7 @@ import time
 import random
 import logging
 from auth import get_openstack_connection
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO)
 conn = get_openstack_connection()
@@ -22,6 +23,17 @@ def get_weather(cpu):
         return "🌤️ Cloudy"
     else:
         return "🌩️ Stormy"
+
+def assign_weather_tag(server):
+    # Ottieni il tempo di creazione della VM
+    created_time = server.created_at.replace(tzinfo=timezone.utc)
+    # Se la VM è stata creata meno di 2 minuti fa, non assegnare ancora un meteo
+    if (datetime.now(timezone.utc) - created_time).total_seconds() < 120:
+        return "⏳ Initializing..."  # Mostra che la VM è ancora in fase di inizializzazione
+
+    # Se sono passati più di 2 minuti, assegna un meteo in base alla CPU
+    cpu = get_fake_cpu_load(server.id)
+    return get_weather(cpu)
 
 while True:
     servers = list(conn.compute.servers())
