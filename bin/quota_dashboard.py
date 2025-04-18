@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import logging
+import random
 from auth import get_openstack_connection
 from openstack_data import get_images, get_flavors, get_networks
 from openstack import exceptions
@@ -35,6 +36,9 @@ def index():
 
     for s in servers:
         s.weather = s.metadata.get('weather', '❓')
+        s.sim_cpu = s.metadata.get('sim_cpu', 'N/A')
+        s.sim_ram = s.metadata.get('sim_ram', 'N/A')
+        s.sim_disk = s.metadata.get('sim_disk', 'N/A')
 
     return render_template('index.html', servers=servers, projects=project_data)
 
@@ -46,18 +50,28 @@ def create_vm():
         flavor_id = request.form.get('flavor')
         network_id = request.form.get('network')
 
+        metadata = {
+            "sim_cpu": str(random.randint(10, 90)),
+            "sim_ram": str(random.randint(10, 90)),
+            "sim_disk": str(random.randint(10, 90))
+        }
+
         try:
             server = conn.compute.create_server(
                 name=name,
                 image_id=image_id,
                 flavor_id=flavor_id,
-                networks=[{"uuid": network_id}]
+                networks=[{"uuid": network_id}],
+                metadata=metadata
             )
-            logging.info(f"VM {name} created successfully")
+            logging.info(f"VM '{name}' creata con metadata: {metadata}")
             return redirect(url_for('index'))
         except exceptions.SDKException as e:
-            logging.error(f"Failed to create VM: {e}")
-            return render_template('create_vm.html', error=f"Errore: {e}")
+            logging.error(f"Errore creazione VM: {e}")
+            images = get_images(conn)
+            flavors = get_flavors(conn)
+            networks = get_networks(conn)
+            return render_template('create_vm.html', images=images, flavors=flavors, networks=networks, error=str(e))
 
     images = get_images(conn)
     flavors = get_flavors(conn)

@@ -1,38 +1,57 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creazione VM</title>
+    <title>CloudWatcher Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Creazione VM</h1>
-    <form method="POST">
-        <label for="image">Immagine:</label>
-        <select name="image" id="image">
-            {% for image in images %}
-                <option value="{{ image.id }}">{{ image.name }}</option>
-            {% endfor %}
-        </select>
-        <br>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">🌤️ CloudWatcher Dashboard</h1>
 
-        <label for="flavor">Flavor:</label>
-        <select name="flavor" id="flavor">
-            {% for flavor in flavors %}
-                <option value="{{ flavor.id }}">{{ flavor.name }}</option>
-            {% endfor %}
-        </select>
-        <br>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>VM Attive</h4>
+            <a href="{{ url_for('create_vm') }}" class="btn btn-primary">➕ Crea VM</a>
+        </div>
 
-        <label for="network">Network:</label>
-        <select name="network" id="network">
-            {% for network in networks %}
-                <option value="{{ network.id }}">{{ network.name }}</option>
+        <div class="row">
+            {% for server in servers %}
+            <div class="col-md-4">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ server.name }}</h5>
+                        <p class="card-text">
+                            <strong>Status:</strong> {{ server.status }}<br>
+                            <strong>Weather:</strong> {{ server.weather }}<br>
+                            <strong>CPU:</strong> {{ server.sim_cpu or 'N/A' }}%<br>
+                            <strong>RAM:</strong> {{ server.sim_ram or 'N/A' }}%<br>
+                            <strong>Disk:</strong> {{ server.sim_disk or 'N/A' }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </select>
-        <br>
+        </div>
 
-        <button type="submit">Crea VM</button>
-    </form>
+        <h4 class="mt-5">Utilizzo Risorse per Progetto</h4>
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Progetto</th>
+                    <th>CPU (Usata / Totale)</th>
+                    <th>RAM (Usata / Totale)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.cpu }}</td>
+                    <td>{{ project.ram }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
