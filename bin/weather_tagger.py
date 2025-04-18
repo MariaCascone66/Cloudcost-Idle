@@ -31,7 +31,6 @@ while True:
         disk = get_fake_disk_load(server.id)
         weather = get_weather(cpu)
 
-        # Set metadata for the server (including simulated values)
         conn.compute.set_server_metadata(server, {
             "weather": weather,
             "sim_cpu": round(cpu, 2),

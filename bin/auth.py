@@ -1,4 +1,3 @@
-# cloudwatcher/bin/auth.py
 import os
 import logging
 from keystoneauth1.identity import v3
@@ -17,17 +16,11 @@ def get_openstack_connection():
         }
 
         auth = v3.Password(**auth_args)
-        # Create a session
         sess = session.Session(auth=auth)
-        # Crea la connessione usando la sessione
-        return connection.Connection(
-            session=sess,
-            region_name=os.environ.get('OS_REGION_NAME', 'RegionOne')
-        )
-
+        return connection.Connection(session=sess, region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'))
     except KeyError as missing:
         logging.error(f"Missing environment variable: {missing}")
         raise
     except Exception as e:
-        logging.error(f"Failed to create OpenStack connection: {e}")
+        logging.error(f"OpenStack connection failed: {e}")
         raise
