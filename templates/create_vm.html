@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crea una Nuova VM</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #333; }
+        label { font-size: 14px; }
+        input, select { padding: 10px; margin: 10px 0; width: 100%; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <h2>Crea una Nuova VM</h2>
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <label for="name">Nome VM:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="image_id">ID Immagine:</label>
+        <input type="text" id="image_id" name="image_id" required>
+
+        <label for="flavor_id">ID Flavor:</label>
+        <input type="text" id="flavor_id" name="flavor_id" required>
+
+        <label for="network_id">ID Rete:</label>
+        <input type="text" id="network_id" name="network_id" required>
+
+        <button type="submit">Crea VM</button>
+    </form>
+    <br>
+    <a href="{{ url_for('index') }}">← Torna alla Dashboard</a>
+</body>
+</html>

@@ -8,14 +8,23 @@
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
         th { background-color: #eee; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
     <h2>🌤️ VM Status</h2>
     <table>
-        <tr><th>Name</th><th>ID</th><th>Weather</th></tr>
+        <tr><th>Name</th><th>ID</th><th>Weather</th><th>Sim CPU (%)</th><th>Sim RAM (%)</th><th>Sim Disk (%)</th></tr>
         {% for vm in servers %}
-        <tr><td>{{ vm.name }}</td><td>{{ vm.id }}</td><td>{{ vm.weather }}</td></tr>
+        <tr>
+            <td>{{ vm.name }}</td>
+            <td>{{ vm.id }}</td>
+            <td>{{ vm.weather }}</td>
+            <td>{{ vm.metadata.sim_cpu if vm.metadata.sim_cpu else 'N/A' }}</td>
+            <td>{{ vm.metadata.sim_ram if vm.metadata.sim_ram else 'N/A' }}</td>
+            <td>{{ vm.metadata.sim_disk if vm.metadata.sim_disk else 'N/A' }}</td>
+        </tr>
         {% endfor %}
     </table>
 
@@ -26,5 +35,48 @@
         <tr><td>{{ p.name }}</td><td>{{ p.id }}</td><td>{{ p.cpu }}</td><td>{{ p.ram }}</td></tr>
         {% endfor %}
     </table>
+
+    <a href="{{ url_for('create_vm') }}"><button>➕ Crea Nuova VM</button></a>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CloudWatcher Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #eee; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <h2>🌤️ VM Status</h2>
+    <table>
+        <tr><th>Name</th><th>ID</th><th>Weather</th><th>Sim CPU (%)</th><th>Sim RAM (%)</th><th>Sim Disk (%)</th></tr>
+        {% for vm in servers %}
+        <tr>
+            <td>{{ vm.name }}</td>
+            <td>{{ vm.id }}</td>
+            <td>{{ vm.weather }}</td>
+            <td>{{ vm.metadata.sim_cpu if vm.metadata.sim_cpu else 'N/A' }}</td>
+            <td>{{ vm.metadata.sim_ram if vm.metadata.sim_ram else 'N/A' }}</td>
+            <td>{{ vm.metadata.sim_disk if vm.metadata.sim_disk else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>📊 Project Quotas</h2>
+    <table>
+        <tr><th>Project</th><th>ID</th><th>CPU</th><th>RAM (MB)</th></tr>
+        {% for p in projects %}
+        <tr><td>{{ p.name }}</td><td>{{ p.id }}</td><td>{{ p.cpu }}</td><td>{{ p.ram }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <a href="{{ url_for('create_vm') }}"><button>➕ Crea Nuova VM</button></a>
 </body>
 </html>
