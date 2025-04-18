@@ -1,0 +1,21 @@
+[Unit]
+Description=CloudWatcher Flask Application
+After=network.target
+
+[Service]
+Type=simple
+Environment=FLASK_APP=/opt/stack/cloudwatcher/bin/app.py
+Environment=FLASK_ENV=production
+Environment=OS_AUTH_URL=http://10.0.2.15/identity
+Environment=OS_USERNAME=admin
+Environment=OS_PASSWORD=secret
+Environment=OS_PROJECT_NAME=admin
+Environment=OS_USER_DOMAIN_ID=default
+Environment=OS_PROJECT_DOMAIN_ID=default
+Environment=OS_REGION_NAME=RegionOne
+ExecStart=/opt/stack/cloudwatcher/venv/bin/python /opt/stack/cloudwatcher/bin/app.py
+Restart=always
+User=stack
+
+[Install]
+WantedBy=multi-user.target
