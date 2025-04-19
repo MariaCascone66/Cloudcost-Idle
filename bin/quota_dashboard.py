@@ -48,7 +48,10 @@ def index():
         if server.status == "ERROR":
             server.tags.append(('🚫', "La VM è in stato di errore."))
 
-        sec_groups = getattr(server, 'security_groups', [])
+        sec_groups = conn.network.security_groups()
+        if sec_groups is None:
+            sec_groups = []
+
         if any(g.get('name') == "restricted" for g in sec_groups):
             server.tags.append(('🔒', "Gruppo di sicurezza 'restricted' attivo."))
 

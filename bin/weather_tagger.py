@@ -31,12 +31,13 @@ while True:
             disk = get_fake_disk_load(server.id)
             weather = get_weather(cpu)
 
-            conn.compute.set_server_metadata(server, {
-                "weather": weather,
-                "sim_cpu": round(cpu, 2),
-                "sim_ram": round(ram, 2),
-                "sim_disk": round(disk, 2)
+            conn.compute.set_server_metadata(server, metadata={
+                "cpu": str(cpu),
+                "ram": f"{ram}MB",
+                "disk": f"{disk}GB",
+                "weather": weather
             })
+
             logging.info(f"[Tagger] {server.name} → {weather} (CPU: {cpu:.2f}%, RAM: {ram:.2f}%, Disk: {disk:.2f}%)")
     except Exception as e:
         logging.error(f"Errore nel tagger: {e}")
