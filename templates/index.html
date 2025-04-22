@@ -1,55 +1,33 @@
-{% extends "layout.html" %}
-{% block title %}Cost Summary{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CloudCost & Idle VM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-4">
+  <div class="container">
+    <h1 class="mb-4 text-primary">☁️ CloudCost & Idle VM</h1>
 
-{% block content %}
-<h2 class="mb-3">Virtual Machines</h2>
-<table class="table table-striped align-middle">
-  <thead class="table-dark">
-    <tr><th>Name</th><th>Status</th><th>Flavor</th><th>Uptime (h)</th>
-        <th>CPU %</th><th>Cost (h)</th><th>Est. 30 d</th></tr>
-  </thead>
-  <tbody>
-    {% for r in rows %}
-      <tr {% if r.idle %}class="table-warning"{% endif %}>
-        <td>{{ r.name }}</td>
-        <td>{{ r.status }}</td>
-        <td>{{ r.flavor }}</td>
-        <td>{{ r.hours }}</td>
-        <td>{{ r.cpu }}</td>
-        <td>{{ r.cost }}</td>
-        <td>
-          {% if r.idle %}
-            <a href="#" data-bs-toggle="modal" data-bs-target="#idleModal"
-               data-name="{{ r.name }}" data-hours="{{ r.hours }}"
-               data-cost="{{ r.monthly }}">
-               <span class="badge bg-danger">Idle 🔕</span>
-            </a>
-          {% else %}
-            {{ r.monthly }}
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-  <tfoot>
-    <tr class="table-secondary">
-      <th colspan="6" class="text-end">Totale stimato /30 d:</th>
-      <th>{{ total }}</th>
-    </tr>
-  </tfoot>
-</table>
+    <h3>💸 Cost Estimation</h3>
+    <table class="table table-bordered table-hover">
+      <thead><tr><th>Name</th><th>Status</th><th>Flavor</th><th>Cost</th></tr></thead>
+      <tbody>
+        {% for vm in costs %}
+          <tr><td>{{ vm.name }}</td><td>{{ vm.status }}</td><td>{{ vm.flavor }}</td><td>{{ vm.cost }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-{% include "idle_modal.html" %}
-{% endblock %}
-
-{% block scripts %}
-<script>
-const idleModal = document.getElementById('idleModal')
-idleModal.addEventListener('show.bs.modal', event => {
-  const btn  = event.relatedTarget
-  idleModal.querySelector('#vmName').textContent  = btn.dataset.name
-  idleModal.querySelector('#vmHours').textContent = btn.dataset.hours
-  idleModal.querySelector('#vmCost').textContent  = btn.dataset.cost
-})
-</script>
-{% endblock %}
+    <h3>😴 Idle VMs</h3>
+    <table class="table table-warning table-hover">
+      <thead><tr><th>Name</th><th>Status</th><th>Uptime</th></tr></thead>
+      <tbody>
+        {% for vm in idle %}
+          <tr><td>{{ vm.name }}</td><td>{{ vm.status }}</td><td>{{ vm.uptime }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

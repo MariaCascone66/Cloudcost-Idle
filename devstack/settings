@@ -1,6 +1,4 @@
 # Cloudcost-Idle plugin settings
-CLOUDCOST_DIR=$DEST/Cloudcost-Idle
-SYSTEMD_DIR=/etc/systemd/system
-VENV_DIR=$CLOUDCOST_DIR/venv
+CLOUDCOST_PLUGIN_DIR=$DEST/Cloudcost-Idle
 
 enable_service cloudcost
