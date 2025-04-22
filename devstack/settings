@@ -1,5 +1,6 @@
-# CloudWatcher plugin settings
-CLOUDWATCHER_DIR=$DEST/cloudwatcher
+# Cloudcost-Idle plugin settings
+CLOUDCOST_DIR=$DEST/Cloudcost-Idle
 SYSTEMD_DIR=/etc/systemd/system
-VENV_DIR=$CLOUDWATCHER_DIR/venv
-enable_service cloudwatcher
+VENV_DIR=$CLOUDCOST_DIR/venv
+
+enable_service cloudcost

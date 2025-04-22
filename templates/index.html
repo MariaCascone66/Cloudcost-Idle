@@ -1,70 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>CloudWatcher Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container py-4">
-        <h1 class="mb-4 text-center">🌤️ CloudWatcher Dashboard</h1>
+{% extends "layout.html" %}
+{% block title %}Cost Summary{% endblock %}
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4>VM Attive</h4>
-            <a href="{{ url_for('create_vm') }}" class="btn btn-primary">➕ Crea VM</a>
-        </div>
+{% block content %}
+<h2 class="mb-3">Virtual Machines</h2>
+<table class="table table-striped align-middle">
+  <thead class="table-dark">
+    <tr><th>Name</th><th>Status</th><th>Flavor</th><th>Uptime (h)</th>
+        <th>CPU %</th><th>Cost (h)</th><th>Est. 30 d</th></tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+      <tr {% if r.idle %}class="table-warning"{% endif %}>
+        <td>{{ r.name }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.flavor }}</td>
+        <td>{{ r.hours }}</td>
+        <td>{{ r.cpu }}</td>
+        <td>{{ r.cost }}</td>
+        <td>
+          {% if r.idle %}
+            <a href="#" data-bs-toggle="modal" data-bs-target="#idleModal"
+               data-name="{{ r.name }}" data-hours="{{ r.hours }}"
+               data-cost="{{ r.monthly }}">
+               <span class="badge bg-danger">Idle 🔕</span>
+            </a>
+          {% else %}
+            {{ r.monthly }}
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr class="table-secondary">
+      <th colspan="6" class="text-end">Totale stimato /30 d:</th>
+      <th>{{ total }}</th>
+    </tr>
+  </tfoot>
+</table>
 
-        {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
+{% include "idle_modal.html" %}
+{% endblock %}
 
-        <div class="row">
-            {% for server in servers %}
-            <div class="col-md-4">
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ server.name }}</h5>
-                        <p class="card-text">
-                            <strong>Status:</strong> {{ server.status }}<br>
-                            {% for tag, tip in server.tags %}
-                                <span data-bs-toggle="tooltip" title="{{ tip }}">{{ tag }}</span>
-                            {% endfor %}
-                            <br><strong>CPU:</strong> {{ server.sim_cpu }}%<br>
-                            <strong>RAM:</strong> {{ server.sim_ram }}%<br>
-                            <strong>Disk:</strong> {{ server.sim_disk }}%
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <h4 class="mt-5">Utilizzo Risorse per Progetto</h4>
-        <table class="table table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Progetto</th>
-                    <th>CPU (Usata / Totale)</th>
-                    <th>RAM (Usata / Totale)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for project in projects %}
-                <tr>
-                    <td>{{ project.name }}</td>
-                    <td>{{ project.cpu }}</td>
-                    <td>{{ project.ram }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    </script>
-</body>
-</html>
+{% block scripts %}
+<script>
+const idleModal = document.getElementById('idleModal')
+idleModal.addEventListener('show.bs.modal', event => {
+  const btn  = event.relatedTarget
+  idleModal.querySelector('#vmName').textContent  = btn.dataset.name
+  idleModal.querySelector('#vmHours').textContent = btn.dataset.hours
+  idleModal.querySelector('#vmCost').textContent  = btn.dataset.cost
+})
+</script>
+{% endblock %}

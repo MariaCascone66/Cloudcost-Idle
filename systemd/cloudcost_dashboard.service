@@ -1,0 +1,18 @@
+[Unit]
+Description=CloudCost Idle Dashboard (Flask)
+After=network.target
+
+[Service]
+User=stack
+WorkingDirectory=/opt/stack/Cloudcost-Idle
+ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 /opt/stack/Cloudcost-Idle/bin/cost_dashboard.py
+Restart=always
+Environment=OS_AUTH_URL=http://127.0.0.1/identity
+Environment=OS_USERNAME=admin
+Environment=OS_PASSWORD=secret
+Environment=OS_PROJECT_NAME=admin
+Environment=OS_USER_DOMAIN_ID=default
+Environment=OS_PROJECT_DOMAIN_ID=default
+
+[Install]
+WantedBy=multi-user.target
