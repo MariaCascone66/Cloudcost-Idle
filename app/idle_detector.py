@@ -1,7 +1,8 @@
-import openstack
+from openstack import connection
+import openstack 
 
 def detect_idle_instances(cpu_threshold=5.0):
-    conn = openstack.connect()
+    conn = connection.Connection()
     idle_instances = []
 
     for server in conn.compute.servers(details=True):

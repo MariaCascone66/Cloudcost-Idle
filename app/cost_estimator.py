@@ -1,8 +1,9 @@
+from openstack import connection
 import openstack
 
 def estimate_instance_cost(instance):
     flavor = instance.flavor['original_name']
-    conn = openstack.connect()
+    conn = connection.Connection()
     flavor_details = conn.get_flavor_by_id(instance.flavor['id'])
     
     vcpu = flavor_details.vcpus

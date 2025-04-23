@@ -5,7 +5,15 @@ After=network.target
 [Service]
 User=stack
 WorkingDirectory=/opt/stack/Cloudcost-Idle
-Environment=PYTHONPATH=/opt/stack/Cloudcost-Idle
+Environment=OS_AUTH_URL=http://10.0.2.15/identity
+Environment=OS_PROJECT_ID=b70fcfaa599e4ed49073e38b155c9027
+Environment=OS_PROJECT_NAME="admin"
+Environment=OS_USER_DOMAIN_NAME="Default"
+Environment=OS_USERNAME="admin"
+Environment=OS_REGION_NAME="RegionOne"
+Environment=OS_INTERFACE=public
+Environment=OS_INTERFACE=public
+Environment=S_IDENTITY_API_VERSION=3
 ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 app/dashboard.py
 
 [Install]
