@@ -1,8 +1,8 @@
 from openstack import connection
 import openstack 
+from dashboard import create_connection
 
-def detect_idle_instances(cpu_threshold=5.0):
-    conn = connection.Connection()
+def detect_idle_instances(conn, cpu_threshold=5.0):
     idle_instances = []
 
     for server in conn.compute.servers(details=True):
