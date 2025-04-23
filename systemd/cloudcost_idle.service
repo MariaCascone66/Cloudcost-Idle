@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=stack
 WorkingDirectory=/opt/stack/Cloudcost-Idle
-EnvironmentFile=/opt/stack/Cloudcost-Idle/config/openrc
+EnvironmentFile=/opt/stack/Cloudcost-Idle/devstack/settings
 ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 app/dashboard.py
 
 [Install]
