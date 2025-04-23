@@ -2,17 +2,16 @@ from flask import Flask, render_template
 from cost_estimator import estimate_instance_cost
 from idle_detector import detect_idle_instances
 from openstack import connection
-import os
+from openstack.config import openstack_config
 
 def create_connection():
-    return connection.Connection(
-        auth_url=os.environ.get("OS_AUTH_URL"),
-        project_name=os.environ.get("OS_PROJECT_NAME"),
-        username=os.environ.get("OS_USERNAME"),
-        password=os.environ.get("OS_PASSWORD"),
-        user_domain_name=os.environ.get("OS_USER_DOMAIN_NAME"),
-        project_domain_name=os.environ.get("OS_PROJECT_DOMAIN_NAME")
-    )
+    required_vars = ["OS_AUTH_URL", "OS_USERNAME", "OS_PASSWORD", "OS_PROJECT_NAME"]
+    for var in required_vars:
+        if not os.environ.get(var):
+            raise RuntimeError(f"Missing required OpenStack env var: {var}")
+    cloud = openstack_config.get_cloud_region()
+    return connection.Connection(config=cloud)
+
 app = Flask(__name__)
 
 @app.route('/')

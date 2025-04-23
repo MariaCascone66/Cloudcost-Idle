@@ -1,8 +1,12 @@
 from openstack import connection
-import openstack 
-from dashboard import create_connection
+from openstack.config import openstack_config
 
-def detect_idle_instances(conn, cpu_threshold=5.0):
+def create_connection():
+    cloud = openstack_config.get_cloud_region()
+    return connection.Connection(config=cloud)
+
+def detect_idle_instances(cpu_threshold=5.0):
+    conn = create_connection()
     idle_instances = []
 
     for server in conn.compute.servers(details=True):
