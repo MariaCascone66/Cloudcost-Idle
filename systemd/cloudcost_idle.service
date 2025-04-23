@@ -1,13 +1,19 @@
 [Unit]
-Description=CloudCost-Idle Service
+Description=CloudCost Idle Plugin Service
 After=network.target
 
 [Service]
 User=stack
-WorkingDirectory=/opt/stack/cloudcost-idle
-Environment="PYTHONPATH=/opt/stack/cloudcost-idle"
-ExecStart=/opt/stack/cloudcost-idle/venv/bin/python3 -m app.dashboard
+WorkingDirectory=/opt/stack/Cloudcost-Idle
+ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 /opt/stack/Cloudcost-Idle/app/dashboard.py
 Restart=always
+Environment=OS_USERNAME=admin
+Environment=OS_PASSWORD=secret
+Environment=OS_PROJECT_NAME=admin
+Environment=OS_AUTH_URL=http://127.0.0.1:5000/v3
+Environment=OS_USER_DOMAIN_NAME=Default
+Environment=OS_PROJECT_DOMAIN_NAME=Default
+Environment=OS_IDENTITY_API_VERSION=3
 
 [Install]
 WantedBy=multi-user.target
