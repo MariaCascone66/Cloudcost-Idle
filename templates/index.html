@@ -2,34 +2,24 @@
 <html>
 <head>
     <title>CloudCost-Idle Dashboard</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        th { background-color: #f4f4f4; }
-    </style>
 </head>
 <body>
-    <h1>CloudCost-Idle Dashboard</h1>
-
-    <h2>💸 VM Cost Estimation</h2>
-    <table>
-        <tr><th>Name</th><th>Flavor</th><th>Uptime (h)</th><th>Cost ($)</th></tr>
+    <h1>Estimated VM Costs</h1>
+    <table border="1">
+        <tr>
+            <th>Name</th><th>vCPU</th><th>RAM (MB)</th><th>Disk (GB)</th><th>Uptime (h)</th><th>Cost ($)</th>
+        </tr>
         {% for vm in costs %}
         <tr>
-            <td>{{ vm.name }}</td><td>{{ vm.flavor }}</td><td>{{ vm.uptime }}</td><td>{{ vm.cost }}</td>
+            <td>{{ vm.instance_name }}</td>
+            <td>{{ vm.vcpu }}</td>
+            <td>{{ vm.ram }}</td>
+            <td>{{ vm.disk }}</td>
+            <td>{{ vm.uptime }}</td>
+            <td>{{ vm.estimated_cost }}</td>
         </tr>
         {% endfor %}
     </table>
-
-    <h2>💤 Idle VM Detector</h2>
-    <table>
-        <tr><th>Name</th><th>Uptime (h)</th><th>CPU Load (%)</th></tr>
-        {% for vm in idle %}
-        <tr>
-            <td>{{ vm.name }}</td><td>{{ vm.uptime }}</td><td>{{ vm.cpu }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <a href="/idle">Check Idle VMs</a>
 </body>
 </html>

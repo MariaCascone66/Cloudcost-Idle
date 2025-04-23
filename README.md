@@ -1,22 +1,20 @@
-# ☁️ CloudCost-Idle
+# ☁️ CloudCost-Idle Plugin
 
-Un plugin DevStack per:
+Un plugin DevStack per monitorare i costi stimati delle VM e identificare le istanze inattive.
 
-1. 🧮 Stimare il costo delle VM accese
-2. 💤 Rilevare VM inutilizzate ("idle")
+## 🔧 Funzionalità
 
-## 🚀 Funzionalità
+- 💸 Stima realistica del costo delle VM (basato su vCPU, RAM, disco, uptime)
+- 🔍 Rilevamento VM inattive con basso uso CPU (<5%)
+- 🌐 Dashboard web in Flask
 
-- Analizza le VM attive
-- Calcola costo simulato basato su flavor e uptime
-- Rileva VM con CPU bassa e uptime alto
-- Dashboard web (Flask) con due tabelle
+## 🗂️ Struttura
 
-## 🛠️ Installazione
-
-Nel tuo `local.conf`, aggiungi:
-[[local|localrc]] enable_plugin cloudcost-idle https://github.com/tuo-user/cloudcost-idle
-
-Poi esegui:
-
-./stack.sh
+```plaintext
+app/
+├── cost_estimator.py
+├── idle_detector.py
+└── dashboard.py
+templates/
+├── index.html
+└── idle_modal.html

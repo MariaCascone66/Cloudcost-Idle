@@ -1,22 +1,39 @@
 #!/bin/bash
 
-if [[ "$1" == "stack" && "$2" == "install" ]]; then
-    echo_summary "Installing CloudCost-Idle"
-    sudo apt-get install -y python3-flask
-    python3 -m venv $COST_IDLE_VENV
-    source $COST_IDLE_VENV/bin/activate
-    pip install -r $COST_IDLE_DIR/requirements.txt
-fi
+function install_flask_dependencies {
+    echo "Installing Flask and dependencies..."
+    if [[ ! -d "$APP_DIR/venv" ]]; then
+        python3 -m venv "$APP_DIR/venv"
+    fi
+    source "$APP_DIR/venv/bin/activate"
+    pip install -r "$APP_DIR/requirements.txt" || exit 1
+    deactivate
+}
 
-if [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    echo_summary "Configuring CloudCost-Idle"
-    sudo cp $COST_IDLE_DIR/systemd/cloudcost-idle.service /etc/systemd/system/
-    sudo systemctl daemon-reexec
-    sudo systemctl enable cloudcost-idle
-    sudo systemctl start cloudcost-idle
-fi
+function copy_service_file {
+    echo "Copying service file to systemd directory..."
+    sudo cp "$SERVICE_DIR/cloudcost_idle.service" "$SYSTEMD_DIR"
+    sudo systemctl daemon-reload
+    sudo systemctl enable cloudcost_idle.service
+}
 
-if [[ "$1" == "unstack" ]]; then
-    echo_summary "Stopping CloudCost-Idle"
-    sudo systemctl stop cloudcost-idle
+function start_plugin {
+    echo "Starting plugin..."
+    sudo systemctl start cloudcost_idle.service
+}
+
+function stop_plugin {
+    echo "Stopping plugin..."
+    sudo systemctl stop cloudcost_idle.service
+}
+
+if is_service_enabled cloudcost-idle; then
+    if [[ "$1" == "stack" && "$2" == "install" ]]; then
+        install_flask_dependencies
+        copy_service_file
+    elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
+        start_plugin
+    elif [[ "$1" == "unstack" ]]; then
+        stop_plugin
+    fi
 fi

@@ -1,30 +1,25 @@
 import openstack
-from datetime import datetime
 
-PRICING = {
-    'm1.small': 0.01,
-    'm1.medium': 0.02,
-    'm1.large': 0.04,
-}
+def estimate_instance_cost(instance):
+    flavor = instance.flavor['original_name']
+    conn = openstack.connect()
+    flavor_details = conn.get_flavor_by_id(instance.flavor['id'])
+    
+    vcpu = flavor_details.vcpus
+    ram = flavor_details.ram  # in MB
+    disk = flavor_details.disk  # in GB
 
-def estimate_cost(conn):
-    servers = conn.compute.servers()
-    costs = []
+    # Prezzi simulati ma basati su listini reali
+    cost_per_hour = (vcpu * 0.05) + (ram / 1024 * 0.01) + (disk * 0.001)
+    uptime_hours = (instance.uptime or 0) / 3600
 
-    for server in servers:
-        if server.status != 'ACTIVE':
-            continue
-        flavor = conn.compute.get_flavor(server.flavor['id'])
-        hourly_price = PRICING.get(flavor.name, 0.01)
-
-        uptime_hours = (datetime.utcnow() - server.launched_at.replace(tzinfo=None)).total_seconds() / 3600
-        cost = round(uptime_hours * hourly_price, 4)
-
-        costs.append({
-            'name': server.name,
-            'flavor': flavor.name,
-            'uptime': round(uptime_hours, 2),
-            'cost': cost,
-        })
-
-    return costs
+    total_cost = round(cost_per_hour * uptime_hours, 4)
+    return {
+        "instance_name": instance.name,
+        "id": instance.id,
+        "vcpu": vcpu,
+        "ram": ram,
+        "disk": disk,
+        "uptime": round(uptime_hours, 2),
+        "estimated_cost": total_cost
+    }

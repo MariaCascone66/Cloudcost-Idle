@@ -1,4 +1,13 @@
-# Cloudcost-Idle plugin settings
-CLOUDCOST_PLUGIN_DIR=$DEST/Cloudcost-Idle
+# === Base Directories ===
+APP_DIR=/opt/stack/cloudcost-idle
+SERVICE_DIR=$APP_DIR/systemd
+SYSTEMD_DIR=/etc/systemd/system
 
-enable_service cloudcost
+# === Service Enable Flag ===
+enable_service cloudcost-idle
+
+enable_plugin cloudcost https://github.com/MariaCascone66/Cloudcost-Idle.git
+
+
+
+
