@@ -1,6 +1,6 @@
+OS_AUTH_URL=http://10.0.2.15/identity
 OS_REGION_NAME=RegionOne
 OS_PROJECT_DOMAIN_ID=default
-OS_AUTH_URL=http://10.0.2.15/identity
 OS_USER_DOMAIN_ID=default
 OS_USERNAME=admin
 OS_VOLUME_API_VERSION=3
