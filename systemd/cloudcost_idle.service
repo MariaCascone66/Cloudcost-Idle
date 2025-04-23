@@ -1,14 +1,14 @@
 [Unit]
-Description=CloudCost Idle Plugin Service
+Description=CloudCost Idle Plugin
 After=network.target
 
 [Service]
-User=stack
-Group=stack
+Type=simple
+ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 /opt/stack/Cloudcost-Idle/app/dashboard.py
 WorkingDirectory=/opt/stack/Cloudcost-Idle
-EnvironmentFile=/opt/stack/Cloudcost-Idle/openrc
-ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 app/dashboard.py
+EnvironmentFile=/opt/stack/Cloudcost-Idle/config/openrc
 Restart=always
+User=stack
 
 [Install]
 WantedBy=multi-user.target
