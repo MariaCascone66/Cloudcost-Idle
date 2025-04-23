@@ -1,6 +1,6 @@
 from flask import Flask, render_template
-from app.cost_estimator import estimate_instance_cost
-from app.idle_detector import detect_idle_instances
+from cost_estimator import estimate_instance_cost
+from idle_detector import detect_idle_instances
 import openstack
 
 app = Flask(__name__)
