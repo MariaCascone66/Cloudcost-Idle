@@ -4,9 +4,11 @@ After=network.target
 
 [Service]
 User=stack
+Group=stack
 WorkingDirectory=/opt/stack/Cloudcost-Idle
-EnvironmentFile=/opt/stack/Cloudcost-Idle/devstack/settings
+EnvironmentFile=/opt/stack/Cloudcost-Idle/openrc
 ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 app/dashboard.py
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

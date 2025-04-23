@@ -1,9 +1,17 @@
 from openstack import connection
-from openstack.config import openstack_config
+import os
+from openstack import connection
 
-def create_connection():
-    cloud = openstack_config.get_cloud_region()
-    return connection.Connection(config=cloud)
+conn = connection.Connection(
+    auth_url=os.environ['OS_AUTH_URL'],
+    project_name=os.environ['OS_PROJECT_NAME'],
+    username=os.environ['OS_USERNAME'],
+    password=os.environ['OS_PASSWORD'],
+    user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
+    project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
+    region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
+    app_name='cloudcost_idle',
+)
 
 def estimate_instance_cost(instance):
     conn = create_connection()
