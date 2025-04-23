@@ -27,7 +27,7 @@ function stop_plugin {
     sudo systemctl stop cloudcost_idle.service
 }
 
-if is_service_enabled cloudcost-idle; then
+if is_service_enabled cloudcost_idle; then
     if [[ "$1" == "stack" && "$2" == "install" ]]; then
         install_flask_dependencies
         copy_service_file
