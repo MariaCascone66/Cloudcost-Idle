@@ -6,7 +6,6 @@ SYSTEMD_DIR=/etc/systemd/system
 # === Service Enable Flag ===
 enable_service cloudcost-idle
 
-enable_plugin cloudcost-idle https://github.com/MariaCascone66/Cloudcost-Idle.git
 
 
 

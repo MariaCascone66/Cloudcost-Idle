@@ -1,4 +1,6 @@
 #!/bin/bash
+# === Load plugin settings ===
+source ${BASH_SOURCE%/*}/settings
 
 function install_flask_dependencies {
     echo "Installing Flask and dependencies..."
