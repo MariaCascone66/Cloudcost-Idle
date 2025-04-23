@@ -1,33 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>CloudCost & Idle VM</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>CloudCost-Idle Dashboard</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #f4f4f4; }
+    </style>
 </head>
-<body class="bg-light p-4">
-  <div class="container">
-    <h1 class="mb-4 text-primary">☁️ CloudCost & Idle VM</h1>
+<body>
+    <h1>CloudCost-Idle Dashboard</h1>
 
-    <h3>💸 Cost Estimation</h3>
-    <table class="table table-bordered table-hover">
-      <thead><tr><th>Name</th><th>Status</th><th>Flavor</th><th>Cost</th></tr></thead>
-      <tbody>
+    <h2>💸 VM Cost Estimation</h2>
+    <table>
+        <tr><th>Name</th><th>Flavor</th><th>Uptime (h)</th><th>Cost ($)</th></tr>
         {% for vm in costs %}
-          <tr><td>{{ vm.name }}</td><td>{{ vm.status }}</td><td>{{ vm.flavor }}</td><td>{{ vm.cost }}</td></tr>
+        <tr>
+            <td>{{ vm.name }}</td><td>{{ vm.flavor }}</td><td>{{ vm.uptime }}</td><td>{{ vm.cost }}</td>
+        </tr>
         {% endfor %}
-      </tbody>
     </table>
 
-    <h3>😴 Idle VMs</h3>
-    <table class="table table-warning table-hover">
-      <thead><tr><th>Name</th><th>Status</th><th>Uptime</th></tr></thead>
-      <tbody>
+    <h2>💤 Idle VM Detector</h2>
+    <table>
+        <tr><th>Name</th><th>Uptime (h)</th><th>CPU Load (%)</th></tr>
         {% for vm in idle %}
-          <tr><td>{{ vm.name }}</td><td>{{ vm.status }}</td><td>{{ vm.uptime }}</td></tr>
+        <tr>
+            <td>{{ vm.name }}</td><td>{{ vm.uptime }}</td><td>{{ vm.cpu }}</td>
+        </tr>
         {% endfor %}
-      </tbody>
     </table>
-  </div>
 </body>
 </html>

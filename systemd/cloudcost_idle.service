@@ -1,13 +1,13 @@
 [Unit]
-Description=CloudCost Idle Plugin Flask App
+Description=CloudCost-Idle Service
 After=network.target
 
 [Service]
-Environment="OS_CLOUD=devstack"
-ExecStart=/opt/stack/Cloudcost-Idle/.venv/bin/python3 /opt/stack/Cloudcost-Idle/bin/webapp.py
-WorkingDirectory=/opt/stack/Cloudcost-Idle
-Restart=always
 User=stack
+WorkingDirectory=/opt/stack/cloudcost-idle
+Environment="PYTHONPATH=/opt/stack/cloudcost-idle"
+ExecStart=/opt/stack/cloudcost-idle/venv/bin/python3 -m app.dashboard
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
