@@ -1,8 +1,12 @@
+import os
 from flask import Flask, render_template
 from cost_estimator import estimate_instance_cost, create_connection
 from idle_detector import detect_idle_instances
 
-app = Flask(__name__)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, '../templates')
+
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
 
 @app.route('/')
 def index():
