@@ -1,25 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>CloudCost-Idle Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Estimated VM Costs</h1>
-    <table border="1">
-        <tr>
-            <th>Name</th><th>vCPU</th><th>RAM (MB)</th><th>Disk (GB)</th><th>Uptime (h)</th><th>Cost ($)</th>
-        </tr>
-        {% for vm in costs %}
-        <tr>
-            <td>{{ vm.instance_name }}</td>
-            <td>{{ vm.vcpu }}</td>
-            <td>{{ vm.ram }}</td>
-            <td>{{ vm.disk }}</td>
-            <td>{{ vm.uptime }}</td>
-            <td>{{ vm.estimated_cost }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <a href="/idle">Check Idle VMs</a>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">💰 Estimated VM Costs</h1>
+
+        <div class="overflow-x-auto shadow-lg rounded-xl bg-white">
+            <table class="min-w-full table-auto text-sm text-left">
+                <thead class="bg-gray-200 uppercase text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3">Name</th>
+                        <th class="px-4 py-3">vCPU</th>
+                        <th class="px-4 py-3">RAM (MB)</th>
+                        <th class="px-4 py-3">Disk (GB)</th>
+                        <th class="px-4 py-3">Uptime (h)</th>
+                        <th class="px-4 py-3">Cost ($)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for vm in costs %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
+                        <td class="px-4 py-2">{{ vm.vcpu }}</td>
+                        <td class="px-4 py-2">{{ vm.ram }}</td>
+                        <td class="px-4 py-2">{{ vm.disk }}</td>
+                        <td class="px-4 py-2">{{ vm.uptime }}</td>
+                        <td class="px-4 py-2 text-green-600 font-semibold">${{ vm.estimated_cost }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="/idle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow-md transition">Check Idle VMs</a>
+        </div>
+    </div>
 </body>
 </html>
