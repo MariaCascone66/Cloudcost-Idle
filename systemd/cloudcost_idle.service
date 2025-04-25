@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 ExecStart=/opt/stack/Cloudcost-Idle/venv/bin/python3 /opt/stack/Cloudcost-Idle/app/dashboard.py
 WorkingDirectory=/opt/stack/Cloudcost-Idle
-EnvironmentFile=/opt/stack/Cloudcost-Idle/config/openrc.sh
+EnvironmentFile=/opt/stack/Cloudcost-Idle/config/settings
 Restart=always
 User=stack
 
