@@ -17,8 +17,18 @@ def create_connection():
 def estimate_instance_cost(instance):
     conn = create_connection()
 
-    flavor_id = instance.flavor['id']
-    flavor_details = conn.compute.get_flavor(flavor_id)
+    # A volte instance.flavor['id'] è un nome invece dell'ID → cerchiamo tra tutti i flavor
+    flavor_identifier = instance.flavor.get('id') or instance.flavor.get('original_name') or instance.flavor.get('name')
+
+    # Cerchiamo tra tutti i flavor quello che ha quell'ID o quel nome
+    flavor_details = next(
+        (f for f in conn.compute.flavors()
+        if f.id == flavor_identifier or f.name == flavor_identifier),
+        None
+    )
+
+    if not flavor_details:
+        raise Exception(f"Flavor non trovato per: {flavor_identifier}")
 
     vcpu = flavor_details.vcpus
     ram = flavor_details.ram  # in MB
