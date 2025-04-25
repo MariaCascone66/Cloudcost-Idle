@@ -6,4 +6,16 @@ SYSTEMD_DIR=/etc/systemd/system
 # === Service Enable Flag ===
 enable_service cloudcost-idle
 
+# === OS Variables ===
+OS_AUTH_URL=http://10.0.2.15/identity
+OS_REGION_NAME=RegionOne
+OS_PROJECT_DOMAIN_NAME=Default
+OS_USER_DOMAIN_NAME=Default
+OS_PROJECT_NAME=admin
+OS_USERNAME=admin
+OS_PASSWORD=secret
+OS_INTERFACE=public
+OS_IDENTITY_API_VERSION=3
+OS_VOLUME_API_VERSION=3
+OS_AUTH_TYPE=password
 
