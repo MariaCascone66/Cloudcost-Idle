@@ -1,4 +1,4 @@
 Flask==3.0.0
 openstacksdk==4.5.0
 python-ceilometerclient==2.9.0
-keystoneauth1==4.0.0
+keystoneauth1>=5.10.0
