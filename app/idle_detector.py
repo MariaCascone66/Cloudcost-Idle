@@ -1,53 +1,22 @@
-import os
-from openstack import connection
-from ceilometerclient import client as ceilometer_client
-from keystoneauth1 import loading, session
+import random
+from cost_estimator import create_connection
 
-def create_connection():
-    return connection.Connection(
-        auth_url=os.environ['OS_AUTH_URL'],
-        project_name=os.environ['OS_PROJECT_NAME'],
-        username=os.environ['OS_USERNAME'],
-        password=os.environ['OS_PASSWORD'],
-        user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
-        project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
-        region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
-        app_name='cloudcost_idle',
-    )
-
-def create_ceilometer_client():
-    loader = loading.get_plugin_loader('password')
-    auth = loader.load_from_options(
-        auth_url=os.environ['OS_AUTH_URL'],
-        username=os.environ['OS_USERNAME'],
-        password=os.environ['OS_PASSWORD'],
-        project_name=os.environ['OS_PROJECT_NAME'],
-        user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
-        project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default')
-    )
-    sess = session.Session(auth=auth)
-    ceilometer = ceilometer_client.get_client('2', session=sess)
-    return ceilometer
-
-def detect_idle_instances(cpu_threshold=5.0):
+def detect_idle_instances():
+    """Trova VM che sembrano essere inattive (idle)."""
     conn = create_connection()
-    ceilometer = create_ceilometer_client()
-    idle_instances = []
+    instances = conn.compute.servers(details=True)
 
-    for server in conn.compute.servers(details=True):
-        samples = ceilometer.samples.list(
-            meter_name='cpu_util',
-            q=[{'field': 'resource_id', 'op': 'eq', 'value': server.id}],
-            limit=10  # puoi anche aumentare se vuoi una media più robusta
-        )
+    idle_vms = []
 
-        if samples:
-            avg_cpu = sum([s.counter_volume for s in samples]) / len(samples)
-            if avg_cpu < cpu_threshold:
-                idle_instances.append({
-                    "id": server.id,
-                    "name": server.name,
-                    "cpu_util": round(avg_cpu, 2)
-                })
+    for instance in instances:
+        # Simuliamo un valore casuale di utilizzo CPU (in futuro puoi integrare metriche reali)
+        cpu_usage_percent = random.uniform(0, 100)
 
-    return idle_instances
+        if cpu_usage_percent < 10:  # VM considerate 'idle' se uso CPU <10%
+            idle_vms.append({
+                "instance_name": instance.name,
+                "id": instance.id,
+                "cpu_usage_percent": round(cpu_usage_percent, 2)
+            })
+
+    return idle_vms

@@ -3,6 +3,7 @@ import os
 from openstack import connection
 
 def create_connection():
+    """Crea una connessione a OpenStack usando variabili ambiente."""
     return connection.Connection(
         auth_url=os.environ['OS_AUTH_URL'],
         project_name=os.environ['OS_PROJECT_NAME'],
@@ -15,6 +16,7 @@ def create_connection():
     )
 
 def estimate_instance_cost(instance):
+    """Stima il costo totale di una VM basandosi su vCPU, RAM, disco e uptime."""
     conn = create_connection()
 
     # A volte instance.flavor['id'] è un nome invece dell'ID → cerchiamo tra tutti i flavor
