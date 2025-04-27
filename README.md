@@ -2,8 +2,9 @@
 
 CloudCost-Idle è un plugin **per OpenStack** che permette di:
 
-- **Stimare il costo** delle VM attive (calcolato in base a CPU, RAM e disco).
+- **Stimare il costo** delle VM attive (calcolato in base a CPU, RAM, disco e uptime reale).
 - **Individuare le VM inattive** (Idle Detector) per ottimizzare il consumo delle risorse cloud.
+- **Gestire automaticamente Floating IP** e **apertura della porta TCP 22** per il corretto funzionamento SSH.
 
 È pensato per aiutare gli amministratori a **monitorare i costi** e **ridurre sprechi**, fornendo una dashboard **semplice** accessibile via browser.
 
@@ -14,6 +15,7 @@ CloudCost-Idle è un plugin **per OpenStack** che permette di:
 - **Python 3**
 - **Flask** (web server e dashboard)
 - **OpenStackSDK** (`openstacksdk`) per comunicare con OpenStack
+- **Paramiko** (SSH verso le VM per calcolo uptime reale)
 - **Systemd** per il servizio di avvio automatico
 - **DevStack** come ambiente OpenStack di test
 - **HTML/CSS** semplici per la dashboard
@@ -29,6 +31,7 @@ CloudCost-Idle è un plugin **per OpenStack** che permette di:
 | Jinja2      | Template engine per HTML dinamico |
 | Systemd     | Gestione del servizio cloudcost_idle.service |
 | OpenStackSDK| Accesso API OpenStack: server, flavor, autenticazione |
+| Paramiko    | Connessioni SSH verso VM per lettura uptime |
 
 ---
 
@@ -54,8 +57,6 @@ export OS_PROJECT_DOMAIN_NAME=Default
 export OS_REGION_NAME=RegionOne
 ```
 
-(Sono le stesse variabili che usi per interagire con OpenStack via CLI.)
-
 ---
 
 ### 3. Crea un ambiente virtuale Python
@@ -71,6 +72,13 @@ source venv/bin/activate
 ### 4. Installa le dipendenze
 ```bash
 pip install -r requirements.txt
+```
+
+**Nota:** Assicurati che `requirements.txt` includa anche:
+```text
+openstacksdk
+paramiko
+flask
 ```
 
 ---
@@ -125,7 +133,10 @@ sudo systemctl status cloudcost_idle.service
 | -------- | --------- |
 | **Dashboard principale** | Elenco VM attive con costi stimati |
 | **Idle Detector** | Identifica VM con CPU usage simulato <10% |
-| **Cost Estimator** | Calcola costi basati su vCPU, RAM, Disk (prezzi fittizi realistici) |
+| **Cost Estimator** | Calcola costi basati su vCPU, RAM, Disk, uptime reale |
+| **SSH Integration** | Recupero uptime tramite SSH su porta 22 |
+| **Floating IP Manager** | Assegna IP pubblico automaticamente se mancante |
+| **Security Group Manager** | Apre la porta TCP 22 automaticamente se necessario |
 | **Servizio systemd** | Avvio automatico all'accensione della macchina |
 
 ---
@@ -168,3 +179,14 @@ Cloudcost-Idle/
 - È **leggero**, **standalone**, **non modifica nulla** del core OpenStack.
 - Si integra facilmente in **ambiente DevStack** o anche in un piccolo cloud privato.
 
+---
+
+# 🚨 Requisiti particolari
+
+| Requisito | Dettaglio |
+| --------- | --------- |
+| **Chiave SSH privata** | Deve esistere in `~/.ssh/mykey` |
+| **Floating IP** | Necessario per accedere via SSH alle VM |
+| **Porta TCP 22** | Deve essere aperta nel Security Group. Il plugin la apre automaticamente se non presente |
+
+---

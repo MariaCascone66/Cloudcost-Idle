@@ -31,5 +31,19 @@ def delete_vm(instance_id):
     conn.compute.delete_server(instance_id)
     return redirect(url_for('idle'))
 
+@app.route('/download_costs')
+def download_costs():
+    conn = create_connection()
+    instances = conn.compute.servers(details=True)
+    costs = []
+    for i in instances:
+        cost_info = estimate_instance_cost(i)
+        cost_info["created_at"] = getattr(i, "created_at", "N/A").replace('T', ' ').replace('Z', '')
+        cost_info["status"] = i.status
+        costs.append(cost_info)
+    
+    csv_file_path = export_costs_to_csv(costs)
+    return send_file(csv_file_path, as_attachment=True)
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
