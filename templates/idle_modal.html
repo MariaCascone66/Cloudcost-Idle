@@ -4,16 +4,31 @@
     <meta charset="UTF-8">
     <title>Idle Instances</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function openModal(vmName, vmId) {
+            document.getElementById('vmName').innerText = vmName;
+            document.getElementById('deleteLink').href = '/delete_vm/' + vmId;
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
     <div class="container mx-auto p-8">
-        <h2 class="text-2xl font-bold mb-6 text-center">🛑 Idle Instances (CPU &lt; 5%)</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center">🛑 Idle Instances</h2>
 
         <div class="bg-white shadow-md rounded-lg p-6">
             {% if idle_vms %}
             <ul class="space-y-3 list-disc list-inside text-lg">
                 {% for vm in idle_vms %}
-                <li><span class="font-semibold">{{ vm.name }}</span> - CPU Usage: <span class="text-red-500">{{ vm.cpu_util }}%</span></li>
+                <li>
+                    <button onclick="openModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="text-blue-600 hover:underline">
+                        {{ vm.instance_name }} - Idle for {{ vm.hours_since_last_update }} hours
+                    </button>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}
@@ -23,6 +38,18 @@
 
         <div class="mt-6 text-center">
             <a href="/" class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full shadow-md transition">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
+            <p class="mb-6">Do you want to permanently delete <span id="vmName" class="font-semibold"></span>?</p>
+            <div class="space-x-4">
+                <a id="deleteLink" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Delete</a>
+                <button onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Cancel</button>
+            </div>
         </div>
     </div>
 </body>

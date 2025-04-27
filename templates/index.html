@@ -19,6 +19,8 @@
                         <th class="px-4 py-3">Disk (GB)</th>
                         <th class="px-4 py-3">Uptime (h)</th>
                         <th class="px-4 py-3">Cost ($)</th>
+                        <th class="px-4 py-3">Created At</th>
+                        <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -30,6 +32,8 @@
                         <td class="px-4 py-2">{{ vm.disk }}</td>
                         <td class="px-4 py-2">{{ vm.uptime }}</td>
                         <td class="px-4 py-2 text-green-600 font-semibold">${{ vm.estimated_cost }}</td>
+                        <td class="px-4 py-2">{{ vm.created_at }}</td>
+                        <td class="px-4 py-2">{{ vm.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
