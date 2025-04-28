@@ -1,8 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, url_for, request
-from idle_detector import detect_idle_instances
-from datetime import datetime
 from openstack import connection
+from datetime import datetime
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, '../templates')
@@ -35,15 +34,13 @@ def index():
         vm_info = {
             "instance_name": i.name,
             "id": i.id,
+            "vcpu": i.flavor.vcpus,
+            "ram": i.flavor.ram,
+            "disk": i.flavor.disk,
             "status": i.status,
         }
         vms.append(vm_info)
     return render_template('index.html', vms=vms)
-
-@app.route('/idle')
-def idle():
-    idle_vms = detect_idle_instances()
-    return render_template('idle_modal.html', idle_vms=idle_vms)
 
 @app.route('/reactivate_vm/<instance_id>', methods=['GET', 'POST'])
 def reactivate_vm(instance_id):

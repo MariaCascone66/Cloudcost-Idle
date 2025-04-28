@@ -1,83 +1,48 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💻 Cloud VM Manager</title>
-
-    <!-- Tailwind CSS via CDN -->
+    <title>CloudVM Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        /* Personalizzazione stilistica */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-    </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">🖥️ VM Dashboard</h1>
 
-    <!-- Navbar -->
-    <nav class="bg-blue-600 p-4">
-        <div class="container flex items-center justify-between">
-            <div class="text-white text-lg font-semibold">Cloud VM Manager</div>
-            <div class="text-white">
-                <a href="/idle" class="mr-4 hover:text-gray-200">Idle VMs</a>
-                <a href="#" class="hover:text-gray-200">Le tue VM</a>
-            </div>
+        <div class="overflow-x-auto shadow-lg rounded-xl bg-white">
+            <table class="min-w-full table-auto text-sm text-left">
+                <thead class="bg-gray-200 uppercase text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3">Name</th>
+                        <th class="px-4 py-3">vCPU</th>
+                        <th class="px-4 py-3">RAM (MB)</th>
+                        <th class="px-4 py-3">Disk (GB)</th>
+                        <th class="px-4 py-3">Uptime (h)</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for vm in vms %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
+                        <td class="px-4 py-2">{{ vm.vcpu }}</td>
+                        <td class="px-4 py-2">{{ vm.ram }}</td>
+                        <td class="px-4 py-2">{{ vm.disk }}</td>
+                        <td class="px-4 py-2">0</td> <!-- Uptime settato a 0 -->
+                        <td class="px-4 py-2">{{ vm.status }}</td>
+                        <td class="px-4 py-2">
+                            {% if vm.status == 'SHUTOFF' %}
+                                <a href="{{ url_for('reactivate_vm', instance_id=vm.id) }}" class="text-green-600 hover:underline">Riattiva</a>
+                            {% else %}
+                                <a href="{{ url_for('delete_vm', instance_id=vm.id) }}" class="text-red-600 hover:underline">Elimina</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="text-center py-16 bg-blue-100">
-        <div class="container">
-            <h1 class="text-4xl font-bold text-blue-900">Gestisci facilmente le tue VM</h1>
-            <p class="text-lg text-gray-600 mt-4">Visualizza, riattiva e cancella le tue macchine virtuali direttamente dal nostro dashboard.</p>
-        </div>
-    </section>
-
-    <!-- VM List Section -->
-    <section class="py-16 bg-white">
-        <div class="container">
-            <h2 class="text-3xl font-bold text-center text-blue-900 mb-8">Le Tue Macchine Virtuali</h2>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                {% for vm in vms %}
-                    <div class="card p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">{{ vm.instance_name }}</h3>
-                        <p class="text-gray-600">Stato: <span class="font-bold">{{ vm.status }}</span></p>
-
-                        {% if vm.status == 'SHUTOFF' %}
-                            <a href="/reactivate_vm/{{ vm.id }}" class="mt-4 inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Riattiva VM</a>
-                        {% endif %}
-
-                        <a href="/delete_vm/{{ vm.id }}" class="mt-4 inline-block bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Elimina VM</a>
-                    </div>
-                {% endfor %}
-            </div>
-
-            {% if not vms %}
-                <div class="text-center mt-8 text-gray-600">
-                    <p>Nessuna macchina virtuale disponibile al momento.</p>
-                </div>
-            {% endif %}
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-blue-600 py-4">
-        <div class="container text-center text-white">
-            <p>&copy; 2025 Cloud VM Manager. Tutti i diritti riservati.</p>
-        </div>
-    </footer>
-
+    </div>
 </body>
 </html>
