@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, url_for, request
+from idle_detector import detect_idle_instances
 from openstack import connection
 from datetime import datetime
 
@@ -53,7 +54,7 @@ def index():
         }
         vms.append(vm_info)
     return render_template('index.html', vms=vms)
-    
+
 @app.route('/reactivate_vm/<instance_id>', methods=['GET', 'POST'])
 def reactivate_vm(instance_id):
     if request.method == 'POST':
@@ -78,6 +79,15 @@ def delete_vm(instance_id):
         return redirect(url_for('index'))
     
     return render_template('delete_modal.html', instance_id=instance_id)
+
+@app.route('/idle')
+def idle_vms():
+    idle_vms = detect_idle_instances()  # Chiamata alla funzione che restituisce le VM inattive
+
+    if idle_vms is None:  # Se non ci sono VM inattive
+        return render_template('idle_modal.html', idle_vms=None, message="Nessuna VM inattiva trovata.")
+    
+    return render_template('idle_modal.html', idle_vms=idle_vms)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

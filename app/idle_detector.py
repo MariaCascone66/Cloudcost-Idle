@@ -1,8 +1,7 @@
 from cost_estimator import create_connection
 from datetime import datetime, timezone
 
-# Impostiamo il threshold di idle in minuti
-IDLE_MINUTES_THRESHOLD = 30  # <-- Puoi cambiare qui facilmente
+IDLE_MINUTES_THRESHOLD = 30  # Puoi cambiare facilmente qui
 
 def detect_idle_instances():
     """Trova VM che sembrano essere inattive in modo più realistico."""
@@ -27,4 +26,5 @@ def detect_idle_instances():
                     "id": instance.id,
                     "hours_since_last_update": round(minutes_since_update / 60, 2)
                 })
-    return idle_vms
+    
+    return idle_vms if idle_vms else None
