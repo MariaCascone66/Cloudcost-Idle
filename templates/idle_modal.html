@@ -1,70 +1,53 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💻 Cloud VM Manager - Idle VMs</title>
+<meta charset="UTF-8">
+<title>Idle Instances</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    function openModal(vmName, vmId) {
+        document.getElementById('vmName').innerText = vmName;
+        document.getElementById('deleteLink').href = '/delete_vm/' + vmId;
+        document.getElementById('modal').classList.remove('hidden');
+    }
 
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        /* Personalizzazione stilistica */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-    </style>
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+</script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+<div class="container mx-auto p-8">
+    <h2 class="text-2xl font-bold mb-6 text-center">🛑 Idle Instances</h2>
 
-    <!-- Navbar -->
-    <nav class="bg-blue-600 p-4">
-        <div class="container flex items-center justify-between">
-            <div class="text-white text-lg font-semibold">Cloud VM Manager</div>
-            <div class="text-white">
-                <a href="/" class="mr-4 hover:text-gray-200">Le tue VM</a>
-                <a href="#" class="hover:text-gray-200">Idle VMs</a>
-            </div>
+    <div class="bg-white shadow-md rounded-lg p-6">
+        {% if idle_vms %}
+        <ul class="space-y-3 list-disc list-inside text-lg">
+            {% for vm in idle_vms %}
+            <li>
+                <button onclick="openModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="text-blue-600 hover:underline">
+                    {{ vm.instance_name }} - Idle for {{ vm.hours_since_last_update }} hours
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-gray-500 text-lg">✅ No idle instances detected.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-6 text-center">
+        <a href="/" class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full shadow-md transition">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+        <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
+        <p class="mb-6">Do you want to permanently delete <span id="vmName" class="font-semibold"></span>?</p>
+        <div class="space-x-4">
+            <a id="deleteLink" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Delete</a>
+            <button onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Cancel</button>
         </div>
-    </nav>
-
-    <!-- Idle VMs Section -->
-    <section class="py-16 bg-white">
-        <div class="container">
-            <h2 class="text-3xl font-bold text-center text-blue-900 mb-8">Macchine Virtuali Inattive</h2>
-
-            {% if idle_vms %}
-                <div class="grid md:grid-cols-3 gap-8">
-                    {% for vm in idle_vms %}
-                        <div class="card p-6">
-                            <h3 class="text-xl font-semibold text-gray-800">{{ vm.instance_name }}</h3>
-                            <p class="text-gray-600">Ore di inattività: <span class="font-bold">{{ vm.hours_since_last_update }} ore</span></p>
-                            <a href="/reactivate_vm/{{ vm.id }}" class="mt-4 inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Riattiva VM</a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center text-gray-600">
-                    <p>Non ci sono macchine virtuali inattive al momento.</p>
-                </div>
-            {% endif %}
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-blue-600 py-4">
-        <div class="container text-center text-white">
-            <p>&copy; 2025 Cloud VM Manager. Tutti i diritti riservati.</p>
-        </div>
-    </footer>
-
+    </div>
+</div>
 </body>
 </html>
