@@ -30,7 +30,11 @@ def index():
     conn = create_connection()
     instances = conn.compute.servers(details=True)
     vms = []
+    
     for i in instances:
+        created_at = i.created_at  # Ora di creazione
+        created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
+
         vm_info = {
             "instance_name": i.name,
             "id": i.id,
@@ -38,8 +42,10 @@ def index():
             "ram": i.flavor.ram,
             "disk": i.flavor.disk,
             "status": i.status,
+            "created_at": created_at_str
         }
         vms.append(vm_info)
+    
     return render_template('index.html', vms=vms)
 
 @app.route('/reactivate_vm/<instance_id>', methods=['GET', 'POST'])
