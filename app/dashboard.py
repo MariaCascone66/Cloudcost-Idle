@@ -25,16 +25,23 @@ def create_connection():
         print(f"[ERROR] La variabile d'ambiente {e} non è impostata.")
         raise
 
+
 @app.route('/')
 def index():
     conn = create_connection()
     instances = conn.compute.servers(details=True)
     vms = []
-    
     for i in instances:
-        created_at = i.created_at  # Ora di creazione
+        # Convert created_at to a datetime object if it's a string
+        created_at = getattr(i, 'created_at', None)
+        if isinstance(created_at, str):
+            try:
+                created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))  # Convert to datetime
+            except ValueError:
+                created_at = None
+        
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
-
+        
         vm_info = {
             "instance_name": i.name,
             "id": i.id,
@@ -42,12 +49,11 @@ def index():
             "ram": i.flavor.ram,
             "disk": i.flavor.disk,
             "status": i.status,
-            "created_at": created_at_str
+            "created_at": created_at_str,
         }
         vms.append(vm_info)
-    
     return render_template('index.html', vms=vms)
-
+    
 @app.route('/reactivate_vm/<instance_id>', methods=['GET', 'POST'])
 def reactivate_vm(instance_id):
     if request.method == 'POST':
