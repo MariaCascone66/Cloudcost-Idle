@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>CloudCost-Idle Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script><a href="{{ url_for('download_costs') }}" class="btn btn-primary">Scarica i Costi in CSV</a>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function openReactivateModal(vmName, vmId) {
+            document.getElementById('vmToReactivateName').innerText = vmName;
+            document.getElementById('reactivateLink').href = '/reactivate_vm/' + vmId;
+            document.getElementById('reactivateModal').classList.remove('hidden');
+        }
+
+        function closeReactivateModal() {
+            document.getElementById('reactivateModal').classList.add('hidden');
+        }
+
+        function handleVmClick(status, vmName, vmId) {
+            if (status === 'SHUTOFF') {
+                openReactivateModal(vmName, vmId);
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
     <div class="container mx-auto p-8">
@@ -25,7 +42,7 @@
                 </thead>
                 <tbody class="divide-y">
                     {% for vm in costs %}
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="handleVmClick('{{ vm.status }}', '{{ vm.instance_name }}', '{{ vm.id }}')">
                         <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
                         <td class="px-4 py-2">{{ vm.vcpu }}</td>
                         <td class="px-4 py-2">{{ vm.ram }}</td>
@@ -42,6 +59,18 @@
 
         <div class="mt-6 text-center">
             <a href="/idle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow-md transition">Check Idle VMs</a>
+        </div>
+    </div>
+
+    <!-- Reactivate Modal -->
+    <div id="reactivateModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-4">Reactivate VM</h3>
+            <p class="mb-6">Questa VM è shutoff. Vuoi riattivare <span id="vmToReactivateName" class="font-semibold"></span>?</p>
+            <div class="space-x-4">
+                <a id="reactivateLink" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Reactivate</a>
+                <button onclick="closeReactivateModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Cancel</button>
+            </div>
         </div>
     </div>
 </body>
