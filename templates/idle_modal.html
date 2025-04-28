@@ -25,7 +25,13 @@
                             <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
                             <td class="px-4 py-2">{{ vm.hours_since_last_update }}</td>
                             <td class="px-4 py-2">
-                                <a href="{{ url_for('delete_vm', instance_id=vm.id) }}" class="text-red-600 hover:underline">Elimina</a>
+                                {% if vm.status == 'SHUTOFF' %}
+                                    <a href="{{ url_for('reactivate_vm', instance_id=vm.id) }}" class="text-green-600 hover:underline">Riattiva</a>
+                                {% else %}
+                                    <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
+                                {% endif %}
+                                <br>
+                                <a href="{{ url_for('delete_vm', instance_id=vm.id) }}" class="text-red-600 hover:underline mt-2">Elimina</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -37,6 +43,35 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Modal for Confirmation -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+        <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
+        <p class="mb-6">Are you sure you want to delete <span id="vmName"></span>? All resources associated with it will be permanently deleted.</p>
+        <div class="space-x-4">
+            <form id="deleteForm" method="POST" action="">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Delete</button>
+            </form>
+            <button onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to open the modal and set the VM's name and delete form action
+    function openDeleteModal(vmName, deleteUrl) {
+        document.getElementById('vmName').innerText = vmName;
+        document.getElementById('deleteForm').action = deleteUrl;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+</script>
+
 
         <div class="mt-6 text-center">
             <a href="/" class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full shadow-md transition">← Back to Dashboard</a>

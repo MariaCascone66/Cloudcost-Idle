@@ -68,17 +68,28 @@ def reactivate_vm(instance_id):
 
     return render_template('reactivate_modal.html', instance_id=instance_id)
 
-@app.route('/delete_vm/<instance_id>', methods=['GET', 'POST'])
+@app.route('/delete_vm/<instance_id>', methods=['POST'])
 def delete_vm(instance_id):
-    if request.method == 'POST':
-        conn = create_connection()
-        instance = conn.compute.get_server(instance_id)
-        
-        # Delete the instance
-        conn.compute.delete_server(instance_id)
-        return redirect(url_for('index'))
-    
-    return render_template('delete_modal.html', instance_id=instance_id)
+    conn = create_connection()
+    instance = conn.compute.get_server(instance_id)
+
+    # Delete the instance from OpenStack
+    conn.compute.delete_server(instance_id)
+
+    # Redirect to the dashboard or idle VM page after deletion
+    return redirect(url_for('index'))
+
+@app.route('/delete_idle_vm/<instance_id>', methods=['POST'])
+def delete_idle_vm(instance_id):
+    conn = create_connection()
+    instance = conn.compute.get_server(instance_id)
+
+    # Delete the instance from OpenStack
+    conn.compute.delete_server(instance_id)
+
+    # Redirect to the idle VM page after deletion
+    return redirect(url_for('idle_vms'))
+
 
 @app.route('/idle')
 def idle_vms():
