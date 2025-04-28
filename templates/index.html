@@ -1,77 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>CloudCost-Idle Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💸 Cloud Cost Estimator</title>
+
+    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function openReactivateModal(vmName, vmId) {
-            document.getElementById('vmToReactivateName').innerText = vmName;
-            document.getElementById('reactivateLink').href = '/reactivate_vm/' + vmId;
-            document.getElementById('reactivateModal').classList.remove('hidden');
+
+    <style>
+        /* Personalizzazione stilistica */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        function closeReactivateModal() {
-            document.getElementById('reactivateModal').classList.add('hidden');
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
         }
-
-        function handleVmClick(status, vmName, vmId) {
-            if (status === 'SHUTOFF') {
-                openReactivateModal(vmName, vmId);
-            }
-        }
-    </script>
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen">
-    <div class="container mx-auto p-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">💰 Estimated VM Costs</h1>
+<body class="bg-gray-50">
 
-        <div class="overflow-x-auto shadow-lg rounded-xl bg-white">
-            <table class="min-w-full table-auto text-sm text-left">
-                <thead class="bg-gray-200 uppercase text-gray-700">
-                    <tr>
-                        <th class="px-4 py-3">Name</th>
-                        <th class="px-4 py-3">vCPU</th>
-                        <th class="px-4 py-3">RAM (MB)</th>
-                        <th class="px-4 py-3">Disk (GB)</th>
-                        <th class="px-4 py-3">Uptime (h)</th>
-                        <th class="px-4 py-3">Cost ($)</th>
-                        <th class="px-4 py-3">Created At</th>
-                        <th class="px-4 py-3">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    {% for vm in costs %}
-                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="handleVmClick('{{ vm.status }}', '{{ vm.instance_name }}', '{{ vm.id }}')">
-                        <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
-                        <td class="px-4 py-2">{{ vm.vcpu }}</td>
-                        <td class="px-4 py-2">{{ vm.ram }}</td>
-                        <td class="px-4 py-2">{{ vm.disk }}</td>
-                        <td class="px-4 py-2">{{ vm.uptime }}</td>
-                        <td class="px-4 py-2 text-green-600 font-semibold">${{ vm.estimated_cost }}</td>
-                        <td class="px-4 py-2">{{ vm.created_at }}</td>
-                        <td class="px-4 py-2">{{ vm.status }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-6 text-center">
-            <a href="/idle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow-md transition">Check Idle VMs</a>
-        </div>
-    </div>
-
-    <!-- Reactivate Modal -->
-    <div id="reactivateModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
-            <h3 class="text-xl font-bold mb-4">Reactivate VM</h3>
-            <p class="mb-6">Questa VM è shutoff. Vuoi riattivare <span id="vmToReactivateName" class="font-semibold"></span>?</p>
-            <div class="space-x-4">
-                <a id="reactivateLink" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Reactivate</a>
-                <button onclick="closeReactivateModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Cancel</button>
+    <!-- Navbar -->
+    <nav class="bg-blue-600 p-4">
+        <div class="container flex items-center justify-between">
+            <div class="text-white text-lg font-semibold">Cloud Cost Estimator</div>
+            <div class="text-white">
+                <a href="#" class="mr-4 hover:text-gray-200">Home</a>
+                <a href="#pricing" class="hover:text-gray-200">Pricing</a>
+                <a href="#about" class="hover:text-gray-200">About</a>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="text-center py-16 bg-blue-100">
+        <div class="container">
+            <h1 class="text-4xl font-bold text-blue-900">Calcola facilmente i costi della tua VM</h1>
+            <p class="text-lg text-gray-600 mt-4">Scopri quanto ti costa ogni ora di utilizzo delle tue risorse cloud con un solo clic.</p>
+        </div>
+    </section>
+
+    <!-- Uptime Costs Section -->
+    <section id="pricing" class="py-16 bg-white">
+        <div class="container">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-8">Stima dei Costi Uptime</h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card VM 1 -->
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold text-gray-800">VM 1 - webserver</h3>
+                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.03</span></p>
+                    <p class="text-gray-600">Uptime: <span class="font-bold">120 ore</span></p>
+                </div>
+
+                <!-- Card VM 2 -->
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold text-gray-800">VM 2 - database</h3>
+                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.10</span></p>
+                    <p class="text-gray-600">Uptime: <span class="font-bold">300 ore</span></p>
+                </div>
+
+                <!-- Card VM 3 -->
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold text-gray-800">VM 3 - applicazione</h3>
+                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.08</span></p>
+                    <p class="text-gray-600">Uptime: <span class="font-bold">150 ore</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-blue-50">
+        <div class="container text-center">
+            <h2 class="text-3xl font-bold text-blue-900 mb-8">Chi Siamo</h2>
+            <p class="text-lg text-gray-600">Siamo un team dedicato a semplificare la gestione e l'ottimizzazione dei costi nelle tue infrastrutture cloud. Questo strumento ti aiuta a tenere traccia dei costi delle tue risorse in modo facile e veloce.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 py-4">
+        <div class="container text-center text-white">
+            <p>&copy; 2025 Cloud Cost Estimator. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
 </body>
 </html>

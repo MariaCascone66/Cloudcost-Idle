@@ -6,6 +6,7 @@ import csv
 from openstack import connection
 
 CSV_FILE = 'uptime_cost_data.csv'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def init_csv_file():
     """Inizializza il file CSV se non esiste."""
@@ -14,11 +15,17 @@ def init_csv_file():
             writer = csv.writer(file)
             writer.writerow(['instance_id', 'instance_name', 'last_activation', 'uptime_hours', 'estimated_cost'])  # intestazione
 
+def write_to_csv(rows):
+    """Scrivi le righe nel CSV."""
+    with open(CSV_FILE, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+
 def update_uptime_cost_csv(instance_id, instance_name, uptime_hours, estimated_cost):
     """Aggiorna o aggiunge una riga nel CSV con i dati di uptime e costo."""
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
-    # Controlla se il file esiste già
+    rows = []
     if os.path.exists(CSV_FILE):
         # Leggi tutte le righe esistenti
         with open(CSV_FILE, mode='r', newline='') as file:
@@ -37,19 +44,14 @@ def update_uptime_cost_csv(instance_id, instance_name, uptime_hours, estimated_c
         # Se la macchina non è ancora registrata, aggiungi una nuova riga
         if not updated:
             rows.append([instance_id, instance_name, now, uptime_hours, estimated_cost])
-
-        # Scrivi di nuovo tutte le righe nel CSV
-        with open(CSV_FILE, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(rows)
     else:
-        # Se il file non esiste, crealo e aggiungi i dati
-        with open(CSV_FILE, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([instance_id, instance_name, now, uptime_hours, estimated_cost])
+        # Se il file non esiste, aggiungi le intestazioni e i dati
+        rows.append(['instance_id', 'instance_name', 'last_activation', 'uptime_hours', 'estimated_cost'])
+        rows.append([instance_id, instance_name, now, uptime_hours, estimated_cost])
 
+    # Scrivi tutte le righe nel CSV
+    write_to_csv(rows)
     print(f"[INFO] Dati di uptime e costo aggiornati per {instance_name} ({instance_id}) nel CSV.")
-
 
 def export_costs_to_csv(costs, filename="vm_costs.csv"):
     """Esporta i costi delle VM in un file CSV."""
@@ -64,16 +66,20 @@ def export_costs_to_csv(costs, filename="vm_costs.csv"):
     
 def create_connection():
     """Crea una connessione a OpenStack usando variabili ambiente."""
-    return connection.Connection(
-        auth_url=os.environ['OS_AUTH_URL'],
-        project_name=os.environ['OS_PROJECT_NAME'],
-        username=os.environ['OS_USERNAME'],
-        password=os.environ['OS_PASSWORD'],
-        user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
-        project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
-        region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
-        app_name='cloudcost_idle',
-    )
+    try:
+        return connection.Connection(
+            auth_url=os.environ['OS_AUTH_URL'],
+            project_name=os.environ['OS_PROJECT_NAME'],
+            username=os.environ['OS_USERNAME'],
+            password=os.environ['OS_PASSWORD'],
+            user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
+            project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
+            region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
+            app_name='cloudcost_idle',
+        )
+    except KeyError as e:
+        print(f"[ERROR] La variabile d'ambiente {e} non è impostata.")
+        raise
 
 def get_or_create_floating_ip(instance, conn, public_network_name='public'):
     """Ritorna il floating IP della VM, oppure ne crea uno nuovo."""
