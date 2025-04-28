@@ -39,7 +39,7 @@ def reactivate_vm(instance_id):
         # Record the reactivation date
         reactivation_date = datetime.now().isoformat()
         instance.metadata['reactivation_date'] = reactivation_date
-        conn.compute.update_server_metadata(instance_id, instance.metadata)
+        conn.compute.set_server_metadata(instance_id, metadata=instance.metadata)
 
         return redirect(url_for('index'))
 
