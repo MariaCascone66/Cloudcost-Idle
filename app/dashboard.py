@@ -1,30 +1,44 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, send_file
-from cost_estimator import estimate_instance_cost, create_connection, export_costs_to_csv
+from flask import Flask, render_template, redirect, url_for, request
 from idle_detector import detect_idle_instances
 from datetime import datetime
+from openstack import connection
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, '../templates')
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 
+def create_connection():
+    """Crea una connessione a OpenStack usando variabili ambiente."""
+    try:
+        return connection.Connection(
+            auth_url=os.environ['OS_AUTH_URL'],
+            project_name=os.environ['OS_PROJECT_NAME'],
+            username=os.environ['OS_USERNAME'],
+            password=os.environ['OS_PASSWORD'],
+            user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
+            project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
+            region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
+            app_name='cloudvm_manager',
+        )
+    except KeyError as e:
+        print(f"[ERROR] La variabile d'ambiente {e} non è impostata.")
+        raise
+
 @app.route('/')
 def index():
     conn = create_connection()
     instances = conn.compute.servers(details=True)
-    costs = []
+    vms = []
     for i in instances:
-        cost_info = estimate_instance_cost(i)
-        cost_info["created_at"] = getattr(i, "created_at", "N/A").replace('T', ' ').replace('Z', '')
-        cost_info["status"] = i.status
-        
-        # Legge la reactivation_date dai metadata
-        metadata = i.metadata or {}
-        cost_info["reactivation_date"] = metadata.get('reactivation_date')
-        
-        costs.append(cost_info)
-    return render_template('index.html', costs=costs)
+        vm_info = {
+            "instance_name": i.name,
+            "id": i.id,
+            "status": i.status,
+        }
+        vms.append(vm_info)
+    return render_template('index.html', vms=vms)
 
 @app.route('/idle')
 def idle():
@@ -40,14 +54,6 @@ def reactivate_vm(instance_id):
         # Reactivate the instance
         conn.compute.start_server(instance_id)
         
-        # Record the reactivation date, formato corretto senza microsecondi
-        reactivation_date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-        # Aggiorna i metadata
-        metadata = instance.metadata or {}
-        metadata['reactivation_date'] = reactivation_date
-        conn.compute.set_server_metadata(instance_id, metadata=metadata)
-
         return redirect(url_for('index'))
 
     return render_template('reactivate_modal.html', instance_id=instance_id)
@@ -58,49 +64,11 @@ def delete_vm(instance_id):
         conn = create_connection()
         instance = conn.compute.get_server(instance_id)
         
-        # Check if the instance has connected volumes
-        related_resources = list(conn.compute.volume_attachments(instance_id))
-        if related_resources:
-            return render_template('confirm_delete_with_related.html', instance_name=instance.name, instance_id=instance_id)
-        
         # Delete the instance
         conn.compute.delete_server(instance_id)
         return redirect(url_for('index'))
     
     return render_template('delete_modal.html', instance_id=instance_id)
-
-@app.route('/confirm_delete_related/<instance_id>', methods=['POST'])
-def confirm_delete_related(instance_id):
-    conn = create_connection()
-    instance = conn.compute.get_server(instance_id)
-    
-    # Delete the instance
-    conn.compute.delete_server(instance_id)
-    
-    # Delete related volumes
-    related_volumes = list(conn.compute.volume_attachments(instance_id))
-    for volume in related_volumes:
-        conn.block_storage.delete_volume(volume.volume_id)
-
-    return redirect(url_for('index'))
-
-@app.route('/download_costs')
-def download_costs():
-    conn = create_connection()
-    instances = conn.compute.servers(details=True)
-    costs = []
-    for i in instances:
-        cost_info = estimate_instance_cost(i)
-        cost_info["created_at"] = getattr(i, "created_at", "N/A").replace('T', ' ').replace('Z', '')
-        cost_info["status"] = i.status
-        
-        metadata = i.metadata or {}
-        cost_info["reactivation_date"] = metadata.get('reactivation_date')
-        
-        costs.append(cost_info)
-    
-    csv_file_path = export_costs_to_csv(costs)
-    return send_file(csv_file_path, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

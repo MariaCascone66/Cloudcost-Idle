@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💸 Cloud Cost Estimator</title>
+    <title>💻 Cloud VM Manager</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,11 +28,10 @@
     <!-- Navbar -->
     <nav class="bg-blue-600 p-4">
         <div class="container flex items-center justify-between">
-            <div class="text-white text-lg font-semibold">Cloud Cost Estimator</div>
+            <div class="text-white text-lg font-semibold">Cloud VM Manager</div>
             <div class="text-white">
-                <a href="#" class="mr-4 hover:text-gray-200">Home</a>
-                <a href="#pricing" class="hover:text-gray-200">Pricing</a>
-                <a href="#about" class="hover:text-gray-200">About</a>
+                <a href="/idle" class="mr-4 hover:text-gray-200">Idle VMs</a>
+                <a href="#" class="hover:text-gray-200">Le tue VM</a>
             </div>
         </div>
     </nav>
@@ -40,53 +39,43 @@
     <!-- Hero Section -->
     <section class="text-center py-16 bg-blue-100">
         <div class="container">
-            <h1 class="text-4xl font-bold text-blue-900">Calcola facilmente i costi della tua VM</h1>
-            <p class="text-lg text-gray-600 mt-4">Scopri quanto ti costa ogni ora di utilizzo delle tue risorse cloud con un solo clic.</p>
+            <h1 class="text-4xl font-bold text-blue-900">Gestisci facilmente le tue VM</h1>
+            <p class="text-lg text-gray-600 mt-4">Visualizza, riattiva e cancella le tue macchine virtuali direttamente dal nostro dashboard.</p>
         </div>
     </section>
 
-    <!-- Uptime Costs Section -->
-    <section id="pricing" class="py-16 bg-white">
+    <!-- VM List Section -->
+    <section class="py-16 bg-white">
         <div class="container">
-            <h2 class="text-3xl font-bold text-center text-blue-900 mb-8">Stima dei Costi Uptime</h2>
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-8">Le Tue Macchine Virtuali</h2>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- Card VM 1 -->
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold text-gray-800">VM 1 - webserver</h3>
-                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.03</span></p>
-                    <p class="text-gray-600">Uptime: <span class="font-bold">120 ore</span></p>
-                </div>
+                {% for vm in vms %}
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">{{ vm.instance_name }}</h3>
+                        <p class="text-gray-600">Stato: <span class="font-bold">{{ vm.status }}</span></p>
 
-                <!-- Card VM 2 -->
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold text-gray-800">VM 2 - database</h3>
-                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.10</span></p>
-                    <p class="text-gray-600">Uptime: <span class="font-bold">300 ore</span></p>
-                </div>
+                        {% if vm.status == 'SHUTOFF' %}
+                            <a href="/reactivate_vm/{{ vm.id }}" class="mt-4 inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Riattiva VM</a>
+                        {% endif %}
 
-                <!-- Card VM 3 -->
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold text-gray-800">VM 3 - applicazione</h3>
-                    <p class="text-gray-600">Stima del costo orario: <span class="font-bold">€0.08</span></p>
-                    <p class="text-gray-600">Uptime: <span class="font-bold">150 ore</span></p>
-                </div>
+                        <a href="/delete_vm/{{ vm.id }}" class="mt-4 inline-block bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Elimina VM</a>
+                    </div>
+                {% endfor %}
             </div>
-        </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-16 bg-blue-50">
-        <div class="container text-center">
-            <h2 class="text-3xl font-bold text-blue-900 mb-8">Chi Siamo</h2>
-            <p class="text-lg text-gray-600">Siamo un team dedicato a semplificare la gestione e l'ottimizzazione dei costi nelle tue infrastrutture cloud. Questo strumento ti aiuta a tenere traccia dei costi delle tue risorse in modo facile e veloce.</p>
+            {% if not vms %}
+                <div class="text-center mt-8 text-gray-600">
+                    <p>Nessuna macchina virtuale disponibile al momento.</p>
+                </div>
+            {% endif %}
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-blue-600 py-4">
         <div class="container text-center text-white">
-            <p>&copy; 2025 Cloud Cost Estimator. Tutti i diritti riservati.</p>
+            <p>&copy; 2025 Cloud VM Manager. Tutti i diritti riservati.</p>
         </div>
     </footer>
 
