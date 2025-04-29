@@ -31,7 +31,8 @@
                                     <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
                                 {% endif %}
                                 <br>
-                                <button type="submit" onclick="handleSubmit()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
+                                <!-- Bottone Elimina -->
+                                <button onclick='openDeleteModal("{{ vm.instance_name|escapejs }}", "{{ url_for("delete_idle_vm", instance_id=vm.id) }}", "{{ vm.id }}")' class="text-red-600 hover:underline mt-2">Elimina</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -49,28 +50,59 @@
         </div>
     </div>
 
+    <!-- Modal di conferma -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-4">Conferma eliminazione</h3>
+            <p class="mb-6">Sei sicuro di voler eliminare la VM <span id="vmName"></span>? Questa azione è irreversibile.</p>
+            <div class="space-x-4">
+                <form id="deleteForm" method="POST" action="" data-vmid="">
+                    <button type="submit" onclick="handleSubmit(event)" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
+                </form>
+                <button onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function openDeleteModal(vmName, deleteUrl) {
+        function openDeleteModal(vmName, deleteUrl, vmId) {
             document.getElementById('vmName').innerText = vmName;
-            document.getElementById('deleteForm').action = deleteUrl;
+            const form = document.getElementById('deleteForm');
+            form.action = deleteUrl;
+            form.dataset.vmid = vmId;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
-    
+
         function closeModal() {
             document.getElementById('deleteModal').classList.add('hidden');
         }
-    
-        function handleSubmit() {
-            const form = document.getElementById('deleteForm');
-            fetch(form.action, {
-                method: 'POST'
-            }).then(() => {
-                // Forza il reload completo della pagina (no cache)
-                window.location.reload(true);
-            });
-            // Previene il comportamento standard del form
-            return false;
+
+        async function checkVmDeleted(vmId) {
+            const response = await fetch(`/check_vm_exists/${vmId}`);
+            const data = await response.json();
+            return !data.exists;
         }
-    </script>    
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('deleteForm');
+            const vmId = form.dataset.vmid;
+
+            await fetch(form.action, { method: 'POST' });
+
+            const maxRetries = 10;
+            let retries = 0;
+            let deleted = false;
+
+            while (retries < maxRetries) {
+                deleted = await checkVmDeleted(vmId);
+                if (deleted) break;
+                await new Promise(r => setTimeout(r, 1000));
+                retries++;
+            }
+
+            window.location.reload(true);
+        }
+    </script>
 </body>
 </html>
