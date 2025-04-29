@@ -63,7 +63,7 @@
             <p class="mb-6">Sei sicuro di voler eliminare la VM <span id="vmName"></span>? Questa azione è irreversibile.</p>
             <div class="space-x-4">
                 <form id="deleteForm" method="POST" action="">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
+                    <button type="submit" onclick="handleSubmit()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
                 </form>
                 <button onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
             </div>
@@ -73,20 +73,25 @@
     <script>
         // Funzione per aprire la modale e impostare il nome della VM e l'azione del form
         function openDeleteModal(vmName, deleteUrl) {
-        const currentPath = window.location.pathname;
-        const redirectPath = currentPath === '/idle' ? '/idle' : '/';
+            document.getElementById('vmName').innerText = vmName;
+            document.getElementById('deleteForm').action = deleteUrl;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
 
-        const form = document.getElementById('deleteForm');
-        form.action = deleteUrl + '?next=' + encodeURIComponent(redirectPath);
-
-        document.getElementById('vmName').innerText = vmName;
-        document.getElementById('deleteModal').classList.remove('hidden');
-    }
-
-
-        // Funzione per chiudere la modale
         function closeModal() {
             document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function handleSubmit() {
+            const form = document.getElementById('deleteForm');
+            fetch(form.action, {
+                method: 'POST'
+            }).then(() => {
+                // Forza il reload completo della pagina (no cache)
+                window.location.reload(true);
+            });
+            // Previene il comportamento standard del form
+            return false;
         }
     </script>
 </body>
