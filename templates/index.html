@@ -42,7 +42,7 @@
                                 <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
                             {% endif %}
                             <br>
-                            <button onclick='openDeleteModal("{{ vm.instance_name|escapejs }}", "{{ url_for("delete_idle_vm", instance_id=vm.id) }}", "{{ vm.id }}")' class="text-red-600 hover:underline mt-2">Elimina</button>
+                            <button onclick="openDeleteModal('{{ vm.instance_name }}', '{{ url_for('delete_idle_vm', instance_id=vm.id) }}', '{{ vm.id }}')" class="text-red-600 hover:underline mt-2">Elimina</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <!-- Modal per la conferma di eliminazione -->
+    <!-- Modal di conferma eliminazione -->
     <div id="deleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
         <div class="bg-white p-8 rounded-lg shadow-xl text-center">
             <h3 class="text-xl font-bold mb-4">Conferma eliminazione</h3>
