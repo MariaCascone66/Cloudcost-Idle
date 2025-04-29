@@ -31,9 +31,7 @@
                                     <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
                                 {% endif %}
                                 <br>
-                                <form method="POST" action="{{ url_for('delete_idle_vm', instance_id=vm.id) }}">
-                                    <button type="submit" class="text-red-600 hover:underline mt-2">Elimina</button>
-                                </form>
+                                <button onclick="openDeleteModal('{{ vm.instance_name }}', '{{ url_for('delete_idle_vm', instance_id=vm.id) }}')" class="text-red-600 hover:underline mt-2">Elimina</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -50,5 +48,19 @@
             <a href="/" class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full shadow-md transition">← Back to Dashboard</a>
         </div>
     </div>
+
+    <script>
+        // Funzione per aprire la modale e impostare il nome della VM e l'azione del form
+        function openDeleteModal(vmName, deleteUrl) {
+            document.getElementById('vmName').innerText = vmName;
+            document.getElementById('deleteForm').action = deleteUrl;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        // Funzione per chiudere la modale
+        function closeModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
