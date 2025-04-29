@@ -73,10 +73,16 @@
     <script>
         // Funzione per aprire la modale e impostare il nome della VM e l'azione del form
         function openDeleteModal(vmName, deleteUrl) {
-            document.getElementById('vmName').innerText = vmName;
-            document.getElementById('deleteForm').action = deleteUrl;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
+        const currentPath = window.location.pathname;
+        const redirectPath = currentPath === '/idle' ? '/idle' : '/';
+
+        const form = document.getElementById('deleteForm');
+        form.action = deleteUrl + '?next=' + encodeURIComponent(redirectPath);
+
+        document.getElementById('vmName').innerText = vmName;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
 
         // Funzione per chiudere la modale
         function closeModal() {

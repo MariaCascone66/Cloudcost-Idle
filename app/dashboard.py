@@ -71,24 +71,18 @@ def reactivate_vm(instance_id):
 @app.route('/delete_vm/<instance_id>', methods=['POST'])
 def delete_vm(instance_id):
     conn = create_connection()
-    instance = conn.compute.get_server(instance_id)
-
-    # Elimina la VM da OpenStack
     conn.compute.delete_server(instance_id)
 
-    # Redirige al dashboard o alla pagina delle VM inattive dopo l'eliminazione
-    return redirect(url_for('index'))
+    next_page = request.args.get('next', '/')
+    return redirect(next_page)
 
 @app.route('/delete_idle_vm/<instance_id>', methods=['POST'])
 def delete_idle_vm(instance_id):
     conn = create_connection()
-    instance = conn.compute.get_server(instance_id)
-
-    # Elimina la VM da OpenStack
     conn.compute.delete_server(instance_id)
 
-    # Redirige alla pagina delle VM inattive dopo l'eliminazione
-    return redirect(url_for('idle_vms'))
+    next_page = request.args.get('next', '/idle')
+    return redirect(next_page)
 
 
 @app.route('/idle')
