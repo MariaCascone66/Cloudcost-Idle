@@ -3,6 +3,18 @@ from flask import Flask, render_template, redirect, url_for, request
 from idle_detector import detect_idle_instances
 from openstack import connection
 from datetime import datetime
+from flask import make_response
+
+def nocache(view):
+    def no_cache_wrapper(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    no_cache_wrapper.__name__ = view.__name__
+    return no_cache_wrapper
+
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, '../templates')
@@ -28,6 +40,7 @@ def create_connection():
 
 
 @app.route('/')
+@nocache
 def index():
     conn = create_connection()
     instances = conn.compute.servers(details=True)
@@ -86,6 +99,7 @@ def delete_idle_vm(instance_id):
 
 
 @app.route('/idle')
+@nocache
 def idle_vms():
     idle_vms = detect_idle_instances()  # Chiamata alla funzione che restituisce le VM inattive
 
