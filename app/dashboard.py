@@ -54,7 +54,7 @@ def index():
 
         if created_at:
            uptime = (datetime.now(timezone.utc) - created_at.astimezone(timezone.utc)).total_seconds() / 3600
-           estimated_cost = round((i.flavor.vcpus * 0.02 + i.flavor.ram / 1024 * 0.01 + i.flavor.disk * 0.005) * uptime, 2)
+            estimated_cost = round((i.flavor.vcpus * 0.02 + i.flavor.ram / 1024 * 0.01 + i.flavor.disk * 0.005) * uptime, 2)
         else:
             uptime = 0
             estimated_cost = 0
