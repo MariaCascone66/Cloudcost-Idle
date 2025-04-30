@@ -50,6 +50,14 @@ def index():
                 created_at = None
 
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
+
+        if created_at:
+            uptime = (datetime.utcnow() - created_at.replace(tzinfo=None)).total_seconds() / 3600
+            estimated_cost = round((i.flavor.vcpus * 0.02 + i.flavor.ram / 1024 * 0.01 + i.flavor.disk * 0.005) * uptime, 2)
+        else:
+            uptime = 0
+            estimated_cost = 0
+
         vm_info = {
             "instance_name": i.name,
             "id": i.id,
@@ -58,6 +66,8 @@ def index():
             "disk": i.flavor.disk,
             "status": i.status,
             "created_at": created_at_str,
+            "uptime": round(uptime, 2),
+            "estimated_cost": estimated_cost,
         }
         vms.append(vm_info)
     return render_template('index.html', vms=vms)
@@ -68,19 +78,17 @@ def idle_vms():
     idle_vms = detect_idle_instances()
     return render_template('idle_modal.html', idle_vms=idle_vms)
 
-@app.route('/reactivate_vm/<instance_id>', methods=['GET', 'POST'])
+@app.route('/reactivate_vm/<instance_id>', methods=['POST'])
 def reactivate_vm(instance_id):
-    if request.method == 'POST':
-        conn = create_connection()
-        conn.compute.start_server(instance_id)
-        return redirect(url_for('index'))
-    return render_template('reactivate_modal.html', instance_id=instance_id)
+    conn = create_connection()
+    conn.compute.start_server(instance_id)
+    return '', 204
 
 @app.route('/delete_vm/<instance_id>', methods=['POST'])
 def delete_vm(instance_id):
     conn = create_connection()
     conn.compute.delete_server(instance_id)
-    return '', 204  # No content
+    return '', 204
 
 @app.route('/delete_idle_vm/<instance_id>', methods=['POST'])
 def delete_idle_vm(instance_id):
