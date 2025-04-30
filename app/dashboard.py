@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, make_response
 from idle_detector import detect_idle_instances
 from openstack import connection
-from datetime import datetime
+from datetime import datetime, timezone
 
 def nocache(view):
     def no_cache_wrapper(*args, **kwargs):
@@ -16,8 +16,9 @@ def nocache(view):
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, '../templates')
+STATIC_DIR = os.path.join(BASE_DIR, '../static')
 
-app = Flask(__name__, template_folder=TEMPLATE_DIR)
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
 def create_connection():
     try:
@@ -52,7 +53,7 @@ def index():
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
 
         if created_at:
-            uptime = (datetime.utcnow() - created_at.replace(tzinfo=None)).total_seconds() / 3600
+           uptime = (datetime.now(timezone.utc) - created_at.astimezone(timezone.utc)).total_seconds() / 3600
             estimated_cost = round((i.flavor.vcpus * 0.02 + i.flavor.ram / 1024 * 0.01 + i.flavor.disk * 0.005) * uptime, 2)
         else:
             uptime = 0
