@@ -1,6 +1,7 @@
 // Funzioni per modale di eliminazione
 function openDeleteModal(vmName, deleteUrl, vmId) {
-    document.getElementById('vmName').innerText = vmName;
+    const nameSpan = document.getElementById('vmName');
+    if (nameSpan) nameSpan.innerText = vmName;
     const form = document.getElementById('deleteForm');
     form.action = deleteUrl;
     form.dataset.vmid = vmId;
@@ -8,7 +9,8 @@ function openDeleteModal(vmName, deleteUrl, vmId) {
 }
 
 function openReactivateModal(vmName, reactivateUrl, vmId) {
-    document.getElementById('vmReactivateName').innerText = vmName;
+    const nameSpan = document.getElementById('vmNameReactivate');
+    if (nameSpan) nameSpan.innerText = vmName;
     const form = document.getElementById('reactivateForm');
     form.action = reactivateUrl;
     form.dataset.vmid = vmId;
