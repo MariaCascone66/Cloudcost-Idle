@@ -108,5 +108,17 @@ def check_vm_exists(instance_id):
     except Exception:
         return jsonify({'exists': False})
 
+@app.route('/check_vm_status/<instance_id>')
+def check_vm_status(instance_id):
+    conn = create_connection()
+    try:
+        vm = conn.compute.get_server(instance_id)
+        if vm is None:
+            return jsonify({'exists': False, 'status': None})
+        return jsonify({'exists': True, 'status': vm.status})
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch VM status: {e}")
+        return jsonify({'exists': False, 'status': None})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

@@ -44,16 +44,23 @@ async function handleDelete(event) {
 }
 
 // REACTIVATE
+async function getVmStatus(vmId) {
+    const response = await fetch(`/check_vm_status/${vmId}`);
+    const data = await response.json();
+    return data.status;
+}
+
 async function handleReactivate(event) {
     event.preventDefault();
     const form = document.getElementById('reactivateForm');
     const vmId = form.dataset.vmid;
     await fetch(form.action, { method: 'POST' });
 
-    for (let i = 0; i < 10; i++) {
-        const exists = await checkVmExists(vmId); // Optional: add check_vm_status
-        if (exists) break; // Consider this successful for now
-        await new Promise(r => setTimeout(r, 1000));
+    // Attendi che la VM sia passata ad ACTIVE
+    for (let i = 0; i < 15; i++) {
+        const status = await getVmStatus(vmId);
+        if (status === 'ACTIVE') break;
+        await new Promise(r => setTimeout(r, 2000)); // 2s x 15 = max 30s attesa
     }
 
     window.location.reload(true);
