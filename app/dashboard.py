@@ -1,10 +1,10 @@
+# dashboard.py
 import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, make_response
 from idle_detector import detect_idle_instances
 from openstack import connection
-from datetime import datetime, timezone
-from cost_estimator import estimate_instance_cost
-from cost_estimator import get_instance_cost_and_uptime
+from datetime import datetime
+from cost_estimator import estimate_instance_cost, get_instance_cost_and_uptime
 
 def nocache(view):
     def no_cache_wrapper(*args, **kwargs):
@@ -23,20 +23,16 @@ STATIC_DIR = os.path.join(BASE_DIR, '../static')
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
 def create_connection():
-    try:
-        return connection.Connection(
-            auth_url=os.environ['OS_AUTH_URL'],
-            project_name=os.environ['OS_PROJECT_NAME'],
-            username=os.environ['OS_USERNAME'],
-            password=os.environ['OS_PASSWORD'],
-            user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
-            project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
-            region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
-            app_name='cloudvm_manager',
-        )
-    except KeyError as e:
-        print(f"[ERROR] Missing env variable: {e}")
-        raise
+    return connection.Connection(
+        auth_url=os.environ['OS_AUTH_URL'],
+        project_name=os.environ['OS_PROJECT_NAME'],
+        username=os.environ['OS_USERNAME'],
+        password=os.environ['OS_PASSWORD'],
+        user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME', 'Default'),
+        project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME', 'Default'),
+        region_name=os.environ.get('OS_REGION_NAME', 'RegionOne'),
+        app_name='cloudvm_manager',
+    )
 
 @app.route('/')
 @nocache
@@ -51,18 +47,15 @@ def index():
                 created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
             except ValueError:
                 created_at = None
-
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
 
         try:
             cost_info = estimate_instance_cost(i)
-
             vm_info = {
                 **cost_info,
                 "status": i.status,
                 "created_at": created_at_str,
             }
-
         except Exception as e:
             print(f"[WARNING] Errore nel calcolo del costo per {i.name}: {e}")
             vm_info = {

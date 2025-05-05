@@ -18,7 +18,7 @@
         <h3 class="text-xl font-bold mb-4">Conferma riattivazione</h3>
         <p class="mb-6">Vuoi riattivare la VM <span id="vmNameReactivate"></span>?</p>
         <div class="space-x-4">
-            <form id="reactivateForm" method="POST" action="" data-vmid="">
+            <form id="reactivateForm" onsubmit="handleReactivate(event)">
                 <button type="submit" onclick="handleReactivate(event)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Riattiva</button>
             </form>
             <button onclick="closeModal('reactivateModal')" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
