@@ -1,8 +1,8 @@
 from openstack import connection
+from datetime import datetime, timezone
 import os
 
 def create_connection():
-    """Crea una connessione a OpenStack usando variabili ambiente."""
     try:
         return connection.Connection(
             auth_url=os.environ['OS_AUTH_URL'],
@@ -17,17 +17,38 @@ def create_connection():
     except KeyError as e:
         raise Exception(f"Impossibile connettersi a OpenStack: variabile d'ambiente mancante: {e}")
 
+def get_actual_uptime_seconds(instance_id):
+    conn = create_connection()
+    actions = list(conn.compute.server_actions(instance_id))
+    actions_sorted = sorted(actions, key=lambda a: a.started_at)
+
+    start_time = None
+    total_uptime = 0
+
+    for action in actions_sorted:
+        action_type = action.action.upper()
+        time = datetime.fromisoformat(action.started_at.replace('Z', '+00:00'))
+
+        if action_type == 'START' and start_time is None:
+            start_time = time
+        elif action_type == 'STOP' and start_time:
+            total_uptime += (time - start_time).total_seconds()
+            start_time = None
+
+    # Se è ancora accesa ora → calcolo anche da ultimo START fino ad adesso
+    if start_time:
+        total_uptime += (datetime.now(timezone.utc) - start_time).total_seconds()
+
+    return total_uptime
+
 def estimate_instance_cost(instance):
-    """Stima il costo totale di una VM basandosi su vCPU, RAM, disco e uptime."""
     conn = create_connection()
 
-    # A volte instance.flavor['id'] è un nome invece dell'ID → cerchiamo tra tutti i flavor
     flavor_identifier = instance.flavor.get('id') or instance.flavor.get('original_name') or instance.flavor.get('name')
 
-    # Cerchiamo tra tutti i flavor quello che ha quell'ID o quel nome
     flavor_details = next(
         (f for f in conn.compute.flavors()
-        if f.id == flavor_identifier or f.name == flavor_identifier),
+         if f.id == flavor_identifier or f.name == flavor_identifier),
         None
     )
 
@@ -35,18 +56,17 @@ def estimate_instance_cost(instance):
         raise Exception(f"Flavor non trovato per: {flavor_identifier}")
 
     vcpu = flavor_details.vcpus
-    ram = flavor_details.ram  # in MB
-    disk = flavor_details.disk  # in GB
+    ram = flavor_details.ram
+    disk = flavor_details.disk
 
-    # Prezzi simulati ma realistici
     cost_per_hour = (vcpu * 0.05) + (ram / 1024 * 0.01) + (disk * 0.001)
-    
-    # Calcolare l'uptime in ore, usando un valore predefinito di 0 se non esiste
-    uptime_seconds = getattr(instance, 'uptime', 0)
-    uptime_hours = uptime_seconds / 3600 if uptime_seconds else 0
+
+    # Calcola uptime reale
+    uptime_seconds = get_actual_uptime_seconds(instance.id)
+    uptime_hours = uptime_seconds / 3600
 
     total_cost = round(cost_per_hour * uptime_hours, 4)
-    
+
     return {
         "instance_name": instance.name,
         "id": instance.id,

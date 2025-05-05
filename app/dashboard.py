@@ -53,15 +53,7 @@ def index():
 
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
 
-          # Calcolo del costo usando la funzione esterna
         try:
-            # Aggiungiamo l'attributo uptime per compatibilità con cost_estimator
-            if created_at:
-                uptime_seconds = (datetime.now(timezone.utc) - created_at.astimezone(timezone.utc)).total_seconds()
-                setattr(i, 'uptime', uptime_seconds)
-            else:
-                setattr(i, 'uptime', 0)
-
             cost_info = estimate_instance_cost(i)
 
             vm_info = {
@@ -84,7 +76,7 @@ def index():
                 "estimated_cost": 0,
             }
         vms.append(vm_info)
-    return render_template("index.html", vms=vms) 
+    return render_template("index.html", vms=vms)
 
 
 @app.route('/idle')
