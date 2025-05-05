@@ -105,6 +105,41 @@ async function updateVmCost(vmId) {
     }
 }
 
+async function fetchIdleVMs() {
+    const response = await fetch("/api/idle_vms");
+    const vms = await response.json();
+
+    const tbody = document.getElementById("idle-vm-body");
+    tbody.innerHTML = "";
+
+    if (vms.length === 0) {
+        tbody.innerHTML = `<tr>
+            <td colspan="3" class="px-4 py-2 text-center text-gray-500">No idle instances found.</td>
+        </tr>`;
+        return;
+    }
+
+    for (const vm of vms) {
+        const row = document.createElement("tr");
+        row.className = "hover:bg-gray-50";
+
+        row.innerHTML = `
+            <td class="px-4 py-2 font-medium">${vm.instance_name}</td>
+            <td class="px-4 py-2">${vm.hours_since_last_update}</td>
+            <td class="px-4 py-2">
+                <button onclick="openReactivateModal('${vm.instance_name}', '/reactivate_vm/${vm.id}', '${vm.id}')" class="text-green-600 hover:underline">Riattiva</button>
+                <br>
+                <button onclick="openDeleteModal('${vm.instance_name}', '/delete_idle_vm/${vm.id}', '${vm.id}')" class="text-red-600 hover:underline mt-2">Elimina</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+// Esegui all'avvio e ogni 30 secondi
+fetchIdleVMs();
+setInterval(fetchIdleVMs, 30000);
+
 function startAutoUpdateCosts() {
     const rows = document.querySelectorAll('tr[data-vmid]');
     rows.forEach(row => {
@@ -115,3 +150,15 @@ function startAutoUpdateCosts() {
 }
 
 document.addEventListener('DOMContentLoaded', startAutoUpdateCosts);
+
+async function getVmStatus(vmId) {
+    try {
+        const response = await fetch(`/check_vm_status/${vmId}`);
+        if (!response.ok) throw new Error("Errore fetch");
+        const data = await response.json();
+        return data.status;
+    } catch (e) {
+        console.error("Errore nel recupero dello stato VM:", e);
+        return null;
+    }
+}

@@ -131,5 +131,10 @@ def check_vm_status(instance_id):
         print(f"[ERROR] Failed to fetch VM status: {e}")
         return jsonify({'exists': False, 'status': None})
 
+@app.route('/api/idle_vms')
+def api_idle_vms():
+    idle_vms = detect_idle_instances()
+    return jsonify(idle_vms if idle_vms else [])
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
