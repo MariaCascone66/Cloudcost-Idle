@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, jsonify, m
 from idle_detector import detect_idle_instances
 from openstack import connection
 from datetime import datetime, timezone
+from cost_estimator import estimate_instance_cost
 
 def nocache(view):
     def no_cache_wrapper(*args, **kwargs):
@@ -52,26 +53,36 @@ def index():
 
         created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else 'N/A'
 
-        if created_at:
-           uptime = (datetime.now(timezone.utc) - created_at.astimezone(timezone.utc)).total_seconds() / 3600
-           estimated_cost = round((i.flavor.vcpus * 0.02 + i.flavor.ram / 1024 * 0.01 + i.flavor.disk * 0.005) * uptime, 2)
-        else:
-            uptime = 0
-            estimated_cost = 0
+          # Calcolo del costo usando la funzione esterna
+        try:
+            # Aggiungiamo l'attributo uptime per compatibilità con cost_estimator
+            if created_at:
+                uptime_seconds = (datetime.now(timezone.utc) - created_at.astimezone(timezone.utc)).total_seconds()
+                setattr(i, 'uptime', uptime_seconds)
+            else:
+                setattr(i, 'uptime', 0)
 
-        vm_info = {
-            "instance_name": i.name,
-            "id": i.id,
-            "vcpu": i.flavor.vcpus,
-            "ram": i.flavor.ram,
-            "disk": i.flavor.disk,
-            "status": i.status,
-            "created_at": created_at_str,
-            "uptime": round(uptime, 2),
-            "estimated_cost": estimated_cost,
-        }
-        vms.append(vm_info)
-    return render_template('index.html', vms=vms)
+            cost_info = estimate_instance_cost(i)
+
+            vm_info = {
+                **cost_info,
+                "status": i.status,
+                "created_at": created_at_str,
+            }
+
+        except Exception as e:
+            print(f"[WARNING] Errore nel calcolo del costo per {i.name}: {e}")
+            vm_info = {
+                "instance_name": i.name,
+                "id": i.id,
+                "vcpu": i.flavor.vcpus,
+                "ram": i.flavor.ram,
+                "disk": i.flavor.disk,
+                "status": i.status,
+                "created_at": created_at_str,
+                "uptime": 0,
+                "estimated_cost": 0,
+            }
 
 @app.route('/idle')
 @nocache
