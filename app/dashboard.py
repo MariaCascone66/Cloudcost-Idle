@@ -1,4 +1,3 @@
-# dashboard.py
 import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, make_response
 from idle_detector import detect_idle_instances

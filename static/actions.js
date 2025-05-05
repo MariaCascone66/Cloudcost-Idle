@@ -1,8 +1,5 @@
-// static/actions.js
-
 function openDeleteModal(vmName, deleteUrl, vmId) {
-    const nameSpan = document.getElementById('vmName');
-    if (nameSpan) nameSpan.innerText = vmName;
+    document.getElementById('vmName').innerText = vmName;
     const form = document.getElementById('deleteForm');
     form.action = deleteUrl;
     form.dataset.vmid = vmId;
@@ -10,8 +7,7 @@ function openDeleteModal(vmName, deleteUrl, vmId) {
 }
 
 function openReactivateModal(vmName, reactivateUrl, vmId) {
-    const nameSpan = document.getElementById('vmNameReactivate');
-    if (nameSpan) nameSpan.innerText = vmName;
+    document.getElementById('vmNameReactivate').innerText = vmName;
     const form = document.getElementById('reactivateForm');
     form.action = reactivateUrl;
     form.dataset.vmid = vmId;
@@ -83,8 +79,8 @@ function startAutoUpdateCosts() {
     const rows = document.querySelectorAll('tr[data-vmid]');
     rows.forEach(row => {
         const vmId = row.dataset.vmid;
-        setInterval(() => updateVmCost(vmId), 60000);  // ogni 60 sec
-        updateVmCost(vmId); // primo aggiornamento
+        setInterval(() => updateVmCost(vmId), 60000); // ogni 60 secondi
+        updateVmCost(vmId); // prima esecuzione
     });
 }
 
