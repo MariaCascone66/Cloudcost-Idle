@@ -4,6 +4,7 @@ from idle_detector import detect_idle_instances
 from openstack import connection
 from datetime import datetime, timezone
 from cost_estimator import estimate_instance_cost
+from cost_estimator import get_instance_cost_and_uptime
 
 def nocache(view):
     def no_cache_wrapper(*args, **kwargs):
@@ -78,6 +79,18 @@ def index():
         vms.append(vm_info)
     return render_template("index.html", vms=vms)
 
+@app.route('/get_cost/<instance_id>')
+def get_cost(instance_id):
+    try:
+        result = get_instance_cost_and_uptime(instance_id)
+        return jsonify({
+            "success": True,
+            "uptime": result["uptime"],
+            "estimated_cost": result["estimated_cost"]
+        })
+    except Exception as e:
+        print(f"[ERROR] Calcolo costo fallito per {instance_id}: {e}")
+        return jsonify({"success": False})
 
 @app.route('/idle')
 @nocache

@@ -98,3 +98,9 @@ def estimate_instance_cost(instance):
         "uptime": round(uptime_hours, 2),
         "estimated_cost": total_cost
     }
+
+def get_instance_cost_and_uptime(instance_id):
+    conn = create_connection()
+    server = conn.compute.get_server(instance_id)
+    return estimate_instance_cost(server)
+
