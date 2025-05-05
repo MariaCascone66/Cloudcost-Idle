@@ -22,6 +22,10 @@ def get_actual_uptime_seconds(instance_id):
     actions = list(conn.compute.server_actions(instance_id))
     actions_sorted = sorted(actions, key=lambda a: a.started_at)
 
+    print(f"\n[DEBUG] VM {instance_id} - Server Actions trovate:")
+    for a in actions_sorted:
+        print(f"  - Azione: {a.action} | Inizio: {a.started_at}")
+
     start_time = None
     total_uptime = 0
 
@@ -31,15 +35,22 @@ def get_actual_uptime_seconds(instance_id):
 
         if action_type == 'START' and start_time is None:
             start_time = time
+            print(f"  > START trovato alle {start_time}")
         elif action_type == 'STOP' and start_time:
-            total_uptime += (time - start_time).total_seconds()
+            delta = (time - start_time).total_seconds()
+            print(f"  > STOP trovato alle {time} (durata sessione: {delta} sec)")
+            total_uptime += delta
             start_time = None
 
-    # Se è ancora accesa ora → calcolo anche da ultimo START fino ad adesso
     if start_time:
-        total_uptime += (datetime.now(timezone.utc) - start_time).total_seconds()
+        now = datetime.now(timezone.utc)
+        delta = (now - start_time).total_seconds()
+        print(f"  > La VM è ancora attiva. Aggiungo uptime attuale: {delta} sec")
+        total_uptime += delta
 
+    print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
+
 
 def estimate_instance_cost(instance):
     conn = create_connection()
