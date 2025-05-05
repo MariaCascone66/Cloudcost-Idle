@@ -52,13 +52,34 @@ async function handleReactivate(event) {
 
     await fetch(form.action, { method: 'POST' });
 
+    // Aspetta che la VM diventi ACTIVE
     for (let i = 0; i < 10; i++) {
         const status = await getVmStatus(vmId);
         if (status === 'ACTIVE') break;
         await new Promise(r => setTimeout(r, 1000));
     }
 
-    updateVmCost(vmId);
+    // Aggiorna i costi
+    await updateVmCost(vmId);
+
+    // Chiude la modale
+    closeModal('reactivateModal');
+
+    // Aggiorna lo stato nella tabella
+    const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
+    if (row) {
+        const statusCell = row.querySelector('td:nth-child(8)');
+        if (statusCell) statusCell.textContent = 'ACTIVE';
+
+        // Disabilita il bottone Riattiva
+        const reactivateBtn = row.querySelector('button.text-green-600');
+        if (reactivateBtn) {
+            reactivateBtn.classList.add('text-gray-400', 'cursor-not-allowed');
+            reactivateBtn.classList.remove('text-green-600', 'hover:underline');
+            reactivateBtn.setAttribute('disabled', 'true');
+            reactivateBtn.textContent = 'Riattiva';
+        }
+    }
 }
 
 async function updateVmCost(vmId) {
