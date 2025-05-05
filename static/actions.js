@@ -28,15 +28,24 @@ async function handleDelete(event) {
     event.preventDefault();
     const form = document.getElementById('deleteForm');
     const vmId = form.dataset.vmid;
+
     await fetch(form.action, { method: 'POST' });
 
+    // Aspetta che la VM venga effettivamente eliminata
     for (let i = 0; i < 10; i++) {
         const exists = await checkVmExists(vmId);
         if (!exists) break;
         await new Promise(r => setTimeout(r, 1000));
     }
 
-    window.location.reload(true);
+    // Chiude la modale
+    closeModal('deleteModal');
+
+    // Rimuove la riga dalla tabella
+    const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
+    if (row) {
+        row.remove();
+    }
 }
 
 async function getVmStatus(vmId) {
