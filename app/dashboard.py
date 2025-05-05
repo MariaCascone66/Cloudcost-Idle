@@ -83,6 +83,9 @@ def index():
                 "uptime": 0,
                 "estimated_cost": 0,
             }
+        vms.append(vm_info)
+    return render_template("index.html", vms=vms) 
+
 
 @app.route('/idle')
 @nocache
