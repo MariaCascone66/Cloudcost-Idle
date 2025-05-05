@@ -21,10 +21,12 @@ def get_actual_uptime_seconds(instance_id):
     conn = create_connection()
     actions = list(conn.compute.server_actions(instance_id))
 
-    # Ordina usando timestamp o start_time se disponibili
+    # Ordina usando timestamp o start_time se disponibili, tutti timezone-aware
     def extract_time(action):
         time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
-        return datetime.fromisoformat(time_str.replace('Z', '+00:00')) if time_str else datetime.min
+        if time_str:
+            return datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
+        return datetime.min.replace(tzinfo=timezone.utc)
 
     actions_sorted = sorted(actions, key=extract_time)
 
@@ -40,9 +42,9 @@ def get_actual_uptime_seconds(instance_id):
         action_type = action.action.upper()
         time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
         if not time_str:
-            continue  # ignora se non c'è data valida
+            continue
 
-        time = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+        time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
 
         if action_type == 'START' and start_time is None:
             start_time = time
@@ -61,8 +63,6 @@ def get_actual_uptime_seconds(instance_id):
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
-
-
 
 def estimate_instance_cost(instance):
     conn = create_connection()
@@ -84,7 +84,6 @@ def estimate_instance_cost(instance):
 
     cost_per_hour = (vcpu * 0.05) + (ram / 1024 * 0.01) + (disk * 0.001)
 
-    # Calcola uptime reale
     uptime_seconds = get_actual_uptime_seconds(instance.id)
     uptime_hours = uptime_seconds / 3600
 
