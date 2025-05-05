@@ -20,18 +20,29 @@ def create_connection():
 def get_actual_uptime_seconds(instance_id):
     conn = create_connection()
     actions = list(conn.compute.server_actions(instance_id))
-    actions_sorted = sorted(actions, key=lambda a: a.started_at)
+
+    # Ordina usando timestamp o start_time se disponibili
+    def extract_time(action):
+        time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
+        return datetime.fromisoformat(time_str.replace('Z', '+00:00')) if time_str else datetime.min
+
+    actions_sorted = sorted(actions, key=extract_time)
 
     print(f"\n[DEBUG] VM {instance_id} - Server Actions trovate:")
     for a in actions_sorted:
-        print(f"  - Azione: {a.action} | Inizio: {a.started_at}")
+        t_str = getattr(a, 'timestamp', None) or getattr(a, 'start_time', None)
+        print(f"  - Azione: {a.action} | Timestamp: {t_str}")
 
     start_time = None
     total_uptime = 0
 
     for action in actions_sorted:
         action_type = action.action.upper()
-        time = datetime.fromisoformat(action.started_at.replace('Z', '+00:00'))
+        time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
+        if not time_str:
+            continue  # ignora se non c'è data valida
+
+        time = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
 
         if action_type == 'START' and start_time is None:
             start_time = time
@@ -50,6 +61,7 @@ def get_actual_uptime_seconds(instance_id):
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
+
 
 
 def estimate_instance_cost(instance):
