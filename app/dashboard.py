@@ -93,8 +93,16 @@ def idle_vms():
 @app.route('/reactivate_vm/<instance_id>', methods=['POST'])
 def reactivate_vm(instance_id):
     conn = create_connection()
-    conn.compute.start_server(instance_id)
-    return '', 204
+    try:
+        server = conn.compute.get_server(instance_id)
+        if server.status == 'SHUTOFF':
+            conn.compute.start_server(instance_id)
+            return '', 204
+        else:
+            return f"Impossibile avviare la VM: stato attuale '{server.status}'", 400
+    except Exception as e:
+        app.logger.error(f"Errore durante la riattivazione della VM {instance_id}: {str(e)}")
+        return f"Errore durante la riattivazione della VM: {str(e)}", 500
 
 @app.route('/delete_vm/<instance_id>', methods=['POST'])
 def delete_vm(instance_id):
