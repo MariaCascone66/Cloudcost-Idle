@@ -25,7 +25,12 @@
                             <td class="px-4 py-2 font-medium">{{ vm.instance_name }}</td>
                             <td class="px-4 py-2">{{ vm.hours_since_last_update }}</td>
                             <td class="px-4 py-2">
-                                <button class="text-gray-400 cursor-not-allowed" disabled title="VM già attiva">Riattiva</button>
+                                {% if vm.status == 'SHUTOFF' %}
+                                    <button onclick="openReactivateModal('{{ vm.instance_name }}', '{{ url_for('reactivate_vm', instance_id=vm.id) }}', '{{ vm.id }}')" class="text-green-600 hover:underline">Riattiva</button>
+                                {% else %}
+                                    <button class="text-gray-400 cursor-not-allowed" disabled title="VM già attiva">Riattiva</button>
+                                {% endif %}
+
                                 <br>
                                 <button onclick="openDeleteModal('{{ vm.instance_name }}', '{{ url_for('delete_idle_vm', instance_id=vm.id) }}', '{{ vm.id }}')" class="text-red-600 hover:underline mt-2">Elimina</button>
                             </td>

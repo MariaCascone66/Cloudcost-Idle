@@ -3,6 +3,29 @@ from datetime import datetime, timezone
 
 IDLE_MINUTES_THRESHOLD = 30  # Soglia di inattività in minuti
 
+def has_attached_volumes(conn, instance_id):
+    try:
+        volume_attachments = list(conn.compute.volume_attachments(instance_id))
+        print(f"→ Volumi attaccati: {len(volume_attachments)}")
+        return len(volume_attachments) > 0
+    except Exception as e:
+        print(f"[WARN] Errore nel controllo volumi: {e}")
+        return True  # Precauzione
+
+def has_floating_ip(instance):
+    try:
+        for net in instance.addresses.values():
+            for ip in net:
+                ip_addr = ip.get('addr')
+                ip_type = ip.get('OS-EXT-IPS:type')
+                print(f"→ IP trovato: {ip_addr} (type: {ip_type})")
+                if ip_type == 'floating':
+                    return True
+    except Exception as e:
+        print(f"[WARN] Errore nel controllo IP: {e}")
+        return True  # Precauzione
+    return False
+
 def detect_idle_instances():
     """
     Restituisce le VM considerate inattive.
@@ -19,12 +42,11 @@ def detect_idle_instances():
         print(f"\n--- VM {instance.name} ({instance.id}) ---")
         print(f"Status: {instance.status}")
 
-        # Salta VM spente
         if instance.status == 'SHUTOFF':
             print("→ Saltata perché è spenta (SHUTOFF).")
             continue
 
-        updated_at = getattr(instance, 'updated_at', None)
+        updated_at = getattr(instance, 'updated_at', None) or getattr(instance, 'created_at', None)
         if not updated_at:
             print("→ Nessun valore di updated_at disponibile.")
             continue
@@ -41,30 +63,10 @@ def detect_idle_instances():
             print("→ Attività recente: non considerata idle.")
             continue
 
-        # Verifica volumi attaccati
-        try:
-            volume_attachments = list(conn.compute.volume_attachments(instance.id))
-            has_attached_volumes = len(volume_attachments) > 0
-            print(f"→ Volumi attaccati: {len(volume_attachments)}")
-        except Exception as e:
-            print(f"[WARN] Errore nel controllo volumi: {e}")
-            has_attached_volumes = True  # Precauzione
+        attached_volumes = has_attached_volumes(conn, instance.id)
+        floating_ip = has_floating_ip(instance)
 
-        # Verifica floating IP
-        has_floating_ip = False
-        try:
-            for net_name, net in instance.addresses.items():
-                for ip in net:
-                    ip_addr = ip.get('addr')
-                    ip_type = ip.get('OS-EXT-IPS:type')
-                    print(f"→ IP trovato: {ip_addr} (type: {ip_type})")
-                    if ip_type == 'floating':
-                        has_floating_ip = True
-        except Exception as e:
-            print(f"[WARN] Errore nel controllo IP: {e}")
-            has_floating_ip = True  # Precauzione
-
-        if not has_attached_volumes and not has_floating_ip:
+        if not attached_volumes and not floating_ip:
             print("→ *** Questa VM è considerata IDLE ***")
             idle_vms.append({
                 "instance_name": instance.name,
