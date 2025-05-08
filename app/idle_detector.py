@@ -43,7 +43,7 @@ def detect_idle_instances():
 
         # Verifica volumi attaccati
         try:
-            volume_attachments = conn.compute.volume_attachments(instance.id)
+            volume_attachments = list(conn.compute.volume_attachments(instance.id))
             has_attached_volumes = len(volume_attachments) > 0
             print(f"→ Volumi attaccati: {len(volume_attachments)}")
         except Exception as e:
