@@ -28,10 +28,6 @@ async function handleDelete(event) {
     event.preventDefault();
     const form = document.getElementById('deleteForm');
     const vmId = form.dataset.vmid;
-    const deleteButton = form.querySelector('button');
-
-    // Cambia il testo del bottone in "Attendere..."
-    startLoading(deleteButton);
 
     await fetch(form.action, { method: 'POST' });
 
@@ -65,10 +61,6 @@ async function handleReactivate(event) {
     event.preventDefault();
     const form = document.getElementById('reactivateForm');
     const vmId = form.dataset.vmid;
-    const reactivateButton = form.querySelector('button');
-
-    // Cambia il testo del bottone in "Attendere..."
-    startLoading(reactivateButton);
 
     await fetch(form.action, { method: 'POST' });
 
@@ -118,12 +110,6 @@ function startAutoUpdateCosts() {
         setInterval(() => updateVmCost(vmId), 60000);
         updateVmCost(vmId);
     });
-}
-
-function startLoading(button) {
-    button.disabled = true;
-    button.textContent = 'Attendere';
-    button.classList.add('loading-dots');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
