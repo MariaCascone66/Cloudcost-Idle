@@ -31,31 +31,24 @@
                         <td class="px-4 py-2">{{ vm.vcpu }}</td>
                         <td class="px-4 py-2">{{ vm.ram }}</td>
                         <td class="px-4 py-2">{{ vm.disk }}</td>
-                        <td class="px-4 py-2 vm-uptime">{{ vm.uptime }} h</td>
-                        <td class="px-4 py-2 vm-cost text-green-600 font-semibold">${{ vm.estimated_cost }}</td>
+                        <td class="px-4 py-2">{{ vm.uptime }} h</td>
+                        <td class="px-4 py-2 vm-cost">{{ vm.cost }}</td>
                         <td class="px-4 py-2">{{ vm.created_at }}</td>
-                        <td class="px-4 py-2">{{ vm.status }}</td>
+                        <td class="px-4 py-2 text-green-500" id="status-{{ vm.id }}">{{ vm.status }}</td>
                         <td class="px-4 py-2">
                             {% if vm.status == 'SHUTOFF' %}
-                                <button onclick="openReactivateModal('{{ vm.instance_name }}', '{{ url_for('reactivate_vm', instance_id=vm.id) }}', '{{ vm.id }}')" class="text-green-600 hover:underline">Riattiva</button>
+                            <button onclick="openReactivateModal('{{ vm.instance_name }}', '/reactivate/{{ vm.id }}', '{{ vm.id }}')" class="text-green-600 hover:underline">Riattiva</button>
                             {% else %}
-                                <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
+                            <button onclick="openDeleteModal('{{ vm.instance_name }}', '/delete/{{ vm.id }}', '{{ vm.id }}')" class="text-red-600 hover:underline">Elimina</button>
                             {% endif %}
-                            <br>
-                            <button onclick="openDeleteModal('{{ vm.instance_name }}', '{{ url_for('delete_idle_vm', instance_id=vm.id) }}', '{{ vm.id }}')" class="text-red-600 hover:underline mt-2">Elimina</button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <div class="mt-6 text-center">
-            <a href="/idle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow-md transition">Check Idle VMs</a>
-        </div>
     </div>
 
-    {% include 'modals.html' %}
     <script src="{{ url_for('static', filename='actions.js') }}"></script>
 </body>
 </html>
