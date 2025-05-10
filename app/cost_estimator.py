@@ -17,11 +17,10 @@ def create_connection():
     except KeyError as e:
         raise Exception(f"Impossibile connettersi a OpenStack: variabile d'ambiente mancante: {e}")
 
-def get_actual_uptime_seconds(instance_id):
+def get_actual_uptime_seconds(instance_id, created_at=None):
     conn = create_connection()
     actions = list(conn.compute.server_actions(instance_id))
 
-    # Ordina usando timestamp o start_time se disponibili, tutti timezone-aware
     def extract_time(action):
         time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
         if time_str:
@@ -60,6 +59,11 @@ def get_actual_uptime_seconds(instance_id):
         delta = (now - start_time).total_seconds()
         print(f"  > La VM è ancora attiva. Aggiungo uptime attuale: {delta} sec")
         total_uptime += delta
+    elif not actions_sorted and created_at:
+        now = datetime.now(timezone.utc)
+        delta = (now - created_at).total_seconds()
+        print(f"  > Nessun evento ma VM attiva. Uptime calcolato da created_at: {delta} sec")
+        total_uptime = delta
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
@@ -84,7 +88,12 @@ def estimate_instance_cost(instance):
 
     cost_per_hour = (vcpu * 0.05) + (ram / 1024 * 0.01) + (disk * 0.001)
 
-    uptime_seconds = get_actual_uptime_seconds(instance.id)
+    try:
+        created_at = datetime.fromisoformat(instance.created_at.replace('Z', '+00:00')).astimezone(timezone.utc)
+    except Exception:
+        created_at = None
+
+    uptime_seconds = get_actual_uptime_seconds(instance.id, created_at)
     uptime_hours = uptime_seconds / 3600
 
     total_cost = round(cost_per_hour * uptime_hours, 4)
@@ -103,4 +112,3 @@ def get_instance_cost_and_uptime(instance_id):
     conn = create_connection()
     server = conn.compute.get_server(instance_id)
     return estimate_instance_cost(server)
-
