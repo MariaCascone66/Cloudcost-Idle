@@ -95,11 +95,12 @@ def reactivate_vm(instance_id):
     conn = create_connection()
     try:
         server = conn.compute.get_server(instance_id)
-        if server.status == 'SHUTOFF':
+
+        if server.status == 'SHUTOFF' and not getattr(server, 'task_state', None):
             conn.compute.start_server(instance_id)
             return '', 204
         else:
-            return f"Impossibile avviare la VM: stato attuale '{server.status}'", 400
+            return f"Impossibile avviare la VM: stato attuale '{server.status}', task_state='{getattr(server, 'task_state', 'None')}'", 400
     except Exception as e:
         app.logger.error(f"Errore durante la riattivazione della VM {instance_id}: {str(e)}")
         return f"Errore durante la riattivazione della VM: {str(e)}", 500
@@ -132,7 +133,17 @@ def check_vm_status(instance_id):
     conn = create_connection()
     try:
         vm = conn.compute.get_server(instance_id)
-        return jsonify({'status': vm.status})
+        if vm is None:
+            return jsonify({'exists': False, 'status': None})
+        return jsonify({'exists': True, 'status': vm.status})
     except Exception as e:
-        app.logger.error(f"Errore nel controllo stato VM {instance_id}: {e}")
-        return jsonify({'status': 'UNKNOWN'})
+        print(f"[ERROR] Failed to fetch VM status: {e}")
+        return jsonify({'exists': False, 'status': None})
+
+@app.route('/api/idle_vms')
+def api_idle_vms():
+    idle_vms = detect_idle_instances()
+    return jsonify(idle_vms if idle_vms else [])
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
