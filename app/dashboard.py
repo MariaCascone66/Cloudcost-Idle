@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, make_response
 from idle_detector import detect_idle_instances
 from openstack import connection
-from datetime import datetime
+from datetime import datetime, timezone
 from cost_estimator import estimate_instance_cost, get_instance_cost_and_uptime
 
 def nocache(view):
@@ -57,15 +57,20 @@ def index():
             }
         except Exception as e:
             print(f"[WARNING] Errore nel calcolo del costo per {i.name}: {e}")
+            flavor = i.flavor
+            vcpu = getattr(flavor, 'vcpus', 0)
+            ram = getattr(flavor, 'ram', 0)
+            disk = getattr(flavor, 'disk', 0)
             vm_info = {
                 "instance_name": i.name,
                 "id": i.id,
-                "vcpu": i.flavor.vcpus,
-                "ram": i.flavor.ram,
-                "disk": i.flavor.disk,
+                "vcpu": vcpu,
+                "ram": ram,
+                "disk": disk,
                 "status": i.status,
                 "created_at": created_at_str,
                 "uptime": 0,
+                "lifetime": 0,
                 "estimated_cost": 0,
             }
         vms.append(vm_info)

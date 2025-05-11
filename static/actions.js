@@ -1,3 +1,4 @@
+
 function openDeleteModal(vmName, deleteUrl, vmId) {
     document.getElementById('vmName').innerText = vmName;
     const form = document.getElementById('deleteForm');
