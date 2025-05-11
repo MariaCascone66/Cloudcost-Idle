@@ -1,192 +1,121 @@
-# 📚 CloudCost-Idle
+# Cloudcost Idle
 
-CloudCost-Idle è un plugin **per OpenStack** che permette di:
+**Cloudcost Idle** è un plugin per ambienti **OpenStack** sviluppato per identificare e gestire le **istanze virtuali inattive**, stimarne il **costo di esercizio reale** e fornire strumenti di ottimizzazione tramite **riattivazione** o **eliminazione**. È progettato per aiutare amministratori e utenti a **ridurre sprechi di risorse** e **ottimizzare i costi** in ambienti cloud condivisi.
 
-- **Stimare il costo** delle VM attive (calcolato in base a CPU, RAM, disco e uptime reale).
-- **Individuare le VM inattive** (Idle Detector) per ottimizzare il consumo delle risorse cloud.
-- **Gestire automaticamente Floating IP** e **apertura della porta TCP 22** per il corretto funzionamento SSH.
+## Funzionalità principali
 
-È pensato per aiutare gli amministratori a **monitorare i costi** e **ridurre sprechi**, fornendo una dashboard **semplice** accessibile via browser.
+### 🔎 Rilevamento automatico delle VM inattive
 
----
+* Le istanze vengono analizzate per determinare **periodi di inattività prolungata**, utilizzando lo stato corrente e i dati di attività.
+* Le macchine in stato `SHUTOFF` da un tempo superiore a una soglia predefinita sono considerate "idle".
 
-## 🛠️ Strumenti utilizzati
+### 💸 Stima accurata dei costi
 
-- **Python 3**
-- **Flask** (web server e dashboard)
-- **OpenStackSDK** (`openstacksdk`) per comunicare con OpenStack
-- **Paramiko** (SSH verso le VM per calcolo uptime reale)
-- **Systemd** per il servizio di avvio automatico
-- **DevStack** come ambiente OpenStack di test
-- **HTML/CSS** semplici per la dashboard
+* Il plugin calcola il **costo effettivo** di ciascuna VM, tenendo conto:
 
----
+  * del tempo reale in cui è stata attiva (uptime calcolato tramite eventi `START` e `STOP`);
+  * delle risorse allocate: vCPU, RAM (in GB), e disco (in GB).
+* Il disco viene considerato come sempre attivo a partire dalla creazione della VM (`created_at`), mentre CPU e RAM solo nei periodi effettivamente in esecuzione.
 
-## 🖥️ Tecnologie e linguaggi principali
+### 📊 Dashboard con dati aggiornati in tempo reale
 
-| Tecnologia  | Ruolo |
-| ----------- | ----- |
-| Python      | Backend principale (Flask app, connessione OpenStack) |
-| Flask       | Server web che espone le pagine della dashboard |
-| Jinja2      | Template engine per HTML dinamico |
-| Systemd     | Gestione del servizio cloudcost_idle.service |
-| OpenStackSDK| Accesso API OpenStack: server, flavor, autenticazione |
-| Paramiko    | Connessioni SSH verso VM per lettura uptime |
+* Visualizzazione centralizzata di:
 
----
+  * Tutte le VM attive;
+  * Le VM identificate come inattive;
+  * Uptime reale, tempo di inattività, e costo stimato per ogni istanza.
+* I dati si aggiornano dinamicamente senza bisogno di ricaricare la pagina.
 
-# 🚀 Installazione e Setup
+### 🛠️ Azioni rapide: "Riattiva" e "Elimina"
 
-### 1. Clona il repository
-```bash
-git clone https://github.com/MariaCascone66/Cloudcost-Idle.git
-cd Cloudcost-Idle
-```
+* Interfaccia web interattiva con conferme utente per:
+
+  * **Riavviare una VM** (`START`) direttamente dalla tabella delle inattive;
+  * **Eliminare una VM** (`DELETE`) per liberare risorse e fermare i costi.
+* Le azioni vengono eseguite via `fetch()` con aggiornamento automatico delle tabelle.
 
 ---
 
-### 2. Configura le variabili di ambiente OpenStack
-Assicurati di esportare le variabili OpenStack nel terminale:
-```bash
-export OS_AUTH_URL=http://<tuo_auth_url>:5000/v3
-export OS_PROJECT_NAME=<nome_progetto>
-export OS_USERNAME=<nome_utente>
-export OS_PASSWORD=<password>
-export OS_USER_DOMAIN_NAME=Default
-export OS_PROJECT_DOMAIN_NAME=Default
-export OS_REGION_NAME=RegionOne
-```
+## Perché usare Cloudcost Idle?
+
+In un'infrastruttura cloud come OpenStack, è facile dimenticare VM lasciate accese inutilmente o inattive per giorni. Questo plugin aiuta a:
+
+* **Identificare gli sprechi**: trova VM inutilizzate o dimenticate.
+* **Ottimizzare i costi**: calcola con precisione quanto ogni VM sta realmente costando.
+* **Prendere decisioni rapide**: fornisce azioni immediate per riattivare o eliminare istanze.
+* **Aumentare la consapevolezza degli utenti**: visualizzazione chiara e aggiornata dei costi e utilizzi.
 
 ---
 
-### 3. Crea un ambiente virtuale Python
-(dentro la cartella Cloudcost-Idle)
+## Architettura del plugin
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+* **Flask** come backend web.
+* **OpenStack SDK** per interrogare i dati delle VM e gli eventi.
+* **JavaScript (fetch + DOM API)** per interazione asincrona e aggiornamenti live.
+* **Template HTML** separati per VM attive (`index.html`) e inattive (`idle_modal.html`).
+* **Moduli Python**:
 
----
-
-### 4. Installa le dipendenze
-```bash
-pip install -r requirements.txt
-```
-
-**Nota:** Assicurati che `requirements.txt` includa anche:
-```text
-openstacksdk
-paramiko
-flask
-```
+  * `dashboard.py`: logica principale e routing Flask.
+  * `cost_estimator.py`: calcolo costi e uptime VM.
+  * `idle_detector.py`: rilevamento VM inattive.
 
 ---
 
-### 5. Avvia manualmente l'applicazione Flask per testare
-```bash
-python app/dashboard.py
-```
+## Requisiti
 
-Poi vai su:
+* Python 3.8+
+* OpenStack SDK (`openstacksdk`)
+* Flask
 
-> http://<IP_del_tuo_server>:8080
-
-Vedrai la **Dashboard Costi**!  
-Cliccando su "Mostra VM inattive" si aprirà la **modalità Idle Detector**.
-
----
-
-### 6. (Opzionale) Installare come servizio systemd
-Se vuoi che il plugin parta automaticamente:
-
-- Copia il file `systemd/cloudcost_idle.service` in `/etc/systemd/system/`
-- Ricarica systemd:
+Installa le dipendenze con:
 
 ```bash
-sudo systemctl daemon-reload
+pip install flask openstacksdk
 ```
 
-- Abilita il servizio all'avvio:
+---
+
+## Avvio del server
+
+Per avviare il server Flask:
 
 ```bash
-sudo systemctl enable cloudcost_idle.service
+python dashboard.py
 ```
 
-- Avvia il servizio:
-
-```bash
-sudo systemctl start cloudcost_idle.service
-```
-
-Controlla che stia funzionando:
-
-```bash
-sudo systemctl status cloudcost_idle.service
-```
+Poi visita `http://localhost:5000` nel browser.
 
 ---
 
-# 📋 Funzionalità principali
+## File principali
 
-| Funzione | Dettaglio |
-| -------- | --------- |
-| **Dashboard principale** | Elenco VM attive con costi stimati |
-| **Idle Detector** | Identifica VM con CPU usage simulato <10% |
-| **Cost Estimator** | Calcola costi basati su vCPU, RAM, Disk, uptime reale |
-| **SSH Integration** | Recupero uptime tramite SSH su porta 22 |
-| **Floating IP Manager** | Assegna IP pubblico automaticamente se mancante |
-| **Security Group Manager** | Apre la porta TCP 22 automaticamente se necessario |
-| **Servizio systemd** | Avvio automatico all'accensione della macchina |
-
----
-
-# ⚙️ Struttura del progetto
-
-```plaintext
-Cloudcost-Idle/
-├── app/
-│   ├── cost_estimator.py   # Stima costi VM
-│   ├── idle_detector.py    # Rileva VM inattive
-│   └── dashboard.py        # App Flask principale
-├── templates/
-│   ├── index.html          # Dashboard costi
-│   └── idle_modal.html     # Modalità VM inattive
-├── devstack/
-│   ├── plugin.sh           # Script per DevStack
-│   └── settings            # File di configurazione
-├── systemd/
-│   └── cloudcost_idle.service # Definizione servizio systemd
-├── requirements.txt        # Dipendenze Python
-└── README.md               # Questo file
-```
+| File                        | Descrizione                                 |
+| --------------------------- | ------------------------------------------- |
+| `dashboard.py`              | Server Flask e routing principale           |
+| `cost_estimator.py`         | Funzioni per calcolo costi e uptime         |
+| `idle_detector.py`          | Logica per trovare VM inattive              |
+| `templates/index.html`      | Dashboard principale                        |
+| `templates/idle_modal.html` | Vista delle VM inattive                     |
+| `static/actions.js`         | Script JS per azioni "Riattiva" e "Elimina" |
 
 ---
 
-# 📌 Note finali
+## Personalizzazione
 
-- **DevStack** deve essere correttamente installato e funzionante.
-- **Non serve modificare OpenStack internamente**: il plugin usa solo API ufficiali tramite OpenStackSDK.
-- **Idle Detector** usa valori CPU simulati.  
-  In futuro puoi collegarlo a Monasca, Gnocchi o metriche reali via API OpenStack per una rilevazione reale.
+* Puoi modificare le **tariffe per vCPU, RAM e Disco** nel file `cost_estimator.py`.
+* La soglia di inattività (es. 24h) può essere configurata nel modulo `idle_detector.py`.
 
 ---
 
-# 🎯 Perché usare CloudCost-Idle?
+## Contributi
 
-- Ti dà **immediatamente visibilità** su quanto ti stanno costando le VM.
-- Ti aiuta a trovare **VM dimenticate o non usate**, risparmiando risorse.
-- È **leggero**, **standalone**, **non modifica nulla** del core OpenStack.
-- Si integra facilmente in **ambiente DevStack** o anche in un piccolo cloud privato.
+Pull request e suggerimenti sono benvenuti! Assicurati che ogni modifica sia ben documentata e testata.
 
 ---
 
-# 🚨 Requisiti particolari
+## Licenza
 
-| Requisito | Dettaglio |
-| --------- | --------- |
-| **Chiave SSH privata** | Deve esistere in `~/.ssh/mykey` |
-| **Floating IP** | Necessario per accedere via SSH alle VM |
-| **Porta TCP 22** | Deve essere aperta nel Security Group. Il plugin la apre automaticamente se non presente |
+MIT License - vedi `LICENSE` per dettagli.
 
 ---
+
