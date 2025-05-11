@@ -17,7 +17,7 @@ def create_connection():
     except KeyError as e:
         raise Exception(f"Impossibile connettersi a OpenStack: variabile d'ambiente mancante: {e}")
 
-def get_actual_uptime_seconds(instance_id, created_at=None):
+ def get_actual_uptime_seconds(instance_id, created_at=None):
     conn = create_connection()
     actions = list(conn.compute.server_actions(instance_id))
 
@@ -34,42 +34,39 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         t_str = getattr(a, 'timestamp', None) or getattr(a, 'start_time', None)
         print(f"  - Azione: {a.action} | Timestamp: {t_str}")
 
-    start_time = None
     total_uptime = 0
+    start_time = None
 
     for action in actions_sorted:
         action_type = action.action.upper()
         time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
         if not time_str:
             continue
+        action_time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
 
-        time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
+        if action_type == 'START':
+            if start_time is None:
+                start_time = action_time
+                print(f"  > START trovato alle {start_time}")
+        elif action_type == 'STOP':
+            if start_time is not None:
+                delta = (action_time - start_time).total_seconds()
+                print(f"  > STOP trovato alle {action_time} (durata sessione: {delta} sec)")
+                total_uptime += delta
+                start_time = None
 
-        if action_type == 'START' and start_time is None:
-            start_time = time
-            print(f"  > START trovato alle {start_time}")
-        elif action_type == 'STOP' and start_time:
-            delta = (time - start_time).total_seconds()
-            print(f"  > STOP trovato alle {time} (durata sessione: {delta} sec)")
-            total_uptime += delta
-            start_time = None
-
-    if start_time:
+    # Se c'è uno START ma non ancora uno STOP → la VM è attiva adesso
+    if start_time is not None:
         now = datetime.now(timezone.utc)
         delta = (now - start_time).total_seconds()
-        print(f"  > La VM è ancora attiva. Aggiungo uptime attuale: {delta} sec")
+        print(f"  > La VM è attualmente attiva. Uptime corrente: {delta} sec")
         total_uptime += delta
-    elif not actions_sorted and created_at:
-        # Nessuna azione, ma created_at esiste ⇒ VM appena creata
+
+    # Se non ci sono azioni ma la VM è attiva (caso appena creata)
+    if not actions_sorted and created_at:
         now = datetime.now(timezone.utc)
         delta = (now - created_at).total_seconds()
-        print(f"  > Solo CREATE presente. VM attiva. Uptime da created_at: {delta} sec")
-        total_uptime = delta
-    elif created_at:
-        # Caso VM attiva ma senza START
-        now = datetime.now(timezone.utc)
-        delta = (now - created_at).total_seconds()
-        print(f"  > VM attiva senza START. Uptime da created_at: {delta} sec")
+        print(f"  > Nessuna azione registrata. VM probabilmente attiva da created_at: {delta} sec")
         total_uptime = delta
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
