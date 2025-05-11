@@ -70,7 +70,8 @@ In un'infrastruttura cloud come OpenStack, è facile dimenticare VM lasciate acc
 Installa le dipendenze con:
 
 ```bash
-pip install flask openstacksdk
+source venv/bin/activate
+pip install requirements.txt
 ```
 
 ---
