@@ -81,7 +81,7 @@ pip install requirements.txt
 Per avviare il server Flask:
 
 ```bash
-python dashboard.py
+python3 dashboard.py
 ```
 
 Poi visita `http://localhost:5000` nel browser.
