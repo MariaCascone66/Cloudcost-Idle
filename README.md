@@ -97,26 +97,14 @@ Poi visita `http://localhost:5000` nel browser.
 | `idle_detector.py`          | Logica per trovare VM inattive              |
 | `templates/index.html`      | Dashboard principale                        |
 | `templates/idle_modal.html` | Vista delle VM inattive                     |
+| `modals.html`               | Finestre modali per  "Riattiva" e "Elimina" |
 | `static/actions.js`         | Script JS per azioni "Riattiva" e "Elimina" |
-
 ---
 
 ## Personalizzazione
 
 * Puoi modificare le **tariffe per vCPU, RAM e Disco** nel file `cost_estimator.py`.
-* La soglia di inattività (es. 24h) può essere configurata nel modulo `idle_detector.py`.
-
----
-
-## Contributi
-
-Pull request e suggerimenti sono benvenuti! Assicurati che ogni modifica sia ben documentata e testata.
-
----
-
-## Licenza
-
-MIT License - vedi `LICENSE` per dettagli.
+* La soglia di inattività (es. 30 min) può essere configurata nel modulo `idle_detector.py`.
 
 ---
 
