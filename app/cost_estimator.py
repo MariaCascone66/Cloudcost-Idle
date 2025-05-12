@@ -61,11 +61,16 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         print(f"  > La VM è attualmente attiva. Uptime corrente: {delta} sec")
         total_uptime += delta
 
-    if not actions_sorted and created_at:
-        now = datetime.now(timezone.utc)
-        delta = (now - created_at).total_seconds()
-        print(f"  > Nessuna azione registrata. VM probabilmente attiva da created_at: {delta} sec")
-        total_uptime = delta
+    if total_uptime == 0 and start_time is None:
+    for action in actions_sorted:
+        if action.action.upper() == 'CREATE':
+            time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
+            if time_str:
+                created_time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
+                now = datetime.now(timezone.utc)
+                delta = (now - created_time).total_seconds()
+                print(f"  > Nessun START/STOP, ma CREATE presente. Uptime dalla creazione: {delta} sec")
+                total_uptime = delta
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
