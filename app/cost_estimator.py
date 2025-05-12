@@ -62,7 +62,6 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         total_uptime += delta
 
     if total_uptime == 0 and start_time is None:
-        # Cerca un evento CREATE
         for action in actions_sorted:
             if action.action.upper() == 'CREATE':
                 time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
@@ -74,7 +73,6 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
                     total_uptime = delta
                     break
         else:
-            # Se non c'è CREATE, usa created_at (se fornito)
             if created_at:
                 if isinstance(created_at, str):
                     created_time = datetime.fromisoformat(created_at.replace('Z', '+00:00')).astimezone(timezone.utc)
@@ -92,7 +90,6 @@ def estimate_instance_cost(instance):
     conn = create_connection()
 
     flavor_identifier = instance.flavor.get('id') or instance.flavor.get('original_name') or instance.flavor.get('name')
-
     flavor_details = next(
         (f for f in conn.compute.flavors()
          if f.id == flavor_identifier or f.name == flavor_identifier),
@@ -106,12 +103,10 @@ def estimate_instance_cost(instance):
     ram = flavor_details.ram  # in MB
     disk = flavor_details.disk  # in GB
 
-    # Costi per ora
     cost_per_hour_vcpu = vcpu * 0.05
     cost_per_hour_ram = (ram / 1024) * 0.01
-    cost_per_hour_disk = disk * 0.001  # Applicato sempre, anche se VM spenta
+    cost_per_hour_disk = disk * 0.001
 
-    # Tempo di vita per il costo disco (basato su created_at)
     try:
         created_at = datetime.fromisoformat(instance.created_at.replace('Z', '+00:00')).astimezone(timezone.utc)
     except Exception:
@@ -121,11 +116,9 @@ def estimate_instance_cost(instance):
     total_lifetime_seconds = (now - created_at).total_seconds() if created_at else 0
     total_lifetime_hours = total_lifetime_seconds / 3600
 
-    # Uptime reale per CPU/RAM
     uptime_seconds = get_actual_uptime_seconds(instance.id, created_at)
     uptime_hours = uptime_seconds / 3600
 
-    # Calcolo costi separati
     cost_cpu = round(cost_per_hour_vcpu * uptime_hours, 4)
     cost_ram = round(cost_per_hour_ram * uptime_hours, 4)
     cost_disk = round(cost_per_hour_disk * total_lifetime_hours, 4)
@@ -146,7 +139,12 @@ def estimate_instance_cost(instance):
         "estimated_cost": total_cost
     }
 
-def get_instance_cost_and_uptime(instance_id):
+def get_instance_cost_and_uptime(instance_id, created_at=None):
     conn = create_connection()
     server = conn.compute.get_server(instance_id)
+
+    # Inietta created_at se fornito (sovrascrive quello originale del server)
+    if created_at:
+        server.created_at = created_at.isoformat() if not isinstance(created_at, str) else created_at
+
     return estimate_instance_cost(server)
