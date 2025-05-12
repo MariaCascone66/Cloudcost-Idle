@@ -77,7 +77,7 @@ async function handleReactivate(event) {
 
     const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
     if (row) {
-        const statusCell = row.querySelector('td:nth-child(8)');
+        const statusCell = row.querySelector('td:nth-child(11)');
         if (statusCell) statusCell.textContent = 'ACTIVE';
 
         const reactivateBtn = row.querySelector('button.text-green-600');
