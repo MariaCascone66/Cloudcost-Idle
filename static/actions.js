@@ -77,9 +77,10 @@ async function handleReactivate(event) {
 
     const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
     if (row) {
-        const statusCell = row.querySelector('td:nth-child()');
-        if (statusCell) statusCell.textContent = 'ACTIVE';
-
+        const statusCell = row.querySelector('td:nth-child(11)');
+        if (statusCell){
+            statusCell.textContent = 'ACTIVE';
+        } 
         const reactivateBtn = row.querySelector('button.text-green-600');
         if (reactivateBtn) {
             reactivateBtn.classList.add('text-gray-400', 'cursor-not-allowed');
