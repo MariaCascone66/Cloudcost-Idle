@@ -78,8 +78,18 @@ def index():
 
 @app.route('/get_cost/<instance_id>')
 def get_cost(instance_id):
+    conn = create_connection()
+    server = conn.compute.get_server(instance_id)
+
+    created_at = getattr(server, 'created_at', None)
+    if isinstance(created_at, str):
+        try:
+            created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+        except ValueError:
+            created_at = None
+
     try:
-        result = get_instance_cost_and_uptime(instance_id)
+        result = get_instance_cost_and_uptime(instance_id, created_at=created_at)
         return jsonify({
             "success": True,
             "uptime": result["uptime"],
