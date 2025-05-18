@@ -62,7 +62,6 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         total_uptime += delta
 
     if total_uptime == 0 and start_time is None:
-        # ↳ Questo blocco era il problema: mancava l'indentazione corretta
         for action in actions_sorted:
             if action.action.upper() == 'CREATE':
                 time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
@@ -144,7 +143,7 @@ def get_instance_cost_and_uptime(instance_id, created_at=None):
     conn = create_connection()
     server = conn.compute.get_server(instance_id)
 
-    # Inietta created_at se fornito (sovrascrive quello originale del server)
+    # Inietta created_at se fornito
     if created_at:
         server.created_at = created_at.isoformat() if not isinstance(created_at, str) else created_at
 
