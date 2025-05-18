@@ -62,6 +62,7 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         total_uptime += delta
 
     if total_uptime == 0 and start_time is None:
+        # ↳ Questo blocco era il problema: mancava l'indentazione corretta
         for action in actions_sorted:
             if action.action.upper() == 'CREATE':
                 time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
