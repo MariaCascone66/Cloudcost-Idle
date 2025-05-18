@@ -61,27 +61,27 @@ def get_actual_uptime_seconds(instance_id, created_at=None):
         print(f"  > La VM è attualmente attiva. Uptime corrente: {delta} sec")
         total_uptime += delta
 
-        if total_uptime == 0 and start_time is None:
-            for action in actions_sorted:
-                if action.action.upper() == 'CREATE':
-                    time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
-                    if time_str:
-                        created_time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
-                        now = datetime.now(timezone.utc)
-                        delta = (now - created_time).total_seconds()
-                        print(f"  > Nessun START/STOP, ma CREATE presente. Uptime dalla creazione: {delta} sec")
-                        total_uptime = delta
-                        break
-            else:
-                if created_at:
-                    if isinstance(created_at, str):
-                        created_time = datetime.fromisoformat(created_at.replace('Z', '+00:00')).astimezone(timezone.utc)
-                    else:
-                        created_time = created_at.astimezone(timezone.utc)
+    if total_uptime == 0 and start_time is None:
+        for action in actions_sorted:
+            if action.action.upper() == 'CREATE':
+                time_str = getattr(action, 'timestamp', None) or getattr(action, 'start_time', None)
+                if time_str:
+                    created_time = datetime.fromisoformat(time_str.replace('Z', '+00:00')).astimezone(timezone.utc)
                     now = datetime.now(timezone.utc)
                     delta = (now - created_time).total_seconds()
-                    print(f"  > Nessun evento disponibile, uso created_at fornito. Uptime dalla creazione: {delta} sec")
+                    print(f"  > Nessun START/STOP, ma CREATE presente. Uptime dalla creazione: {delta} sec")
                     total_uptime = delta
+                    break
+        else:
+            if created_at:
+                if isinstance(created_at, str):
+                    created_time = datetime.fromisoformat(created_at.replace('Z', '+00:00')).astimezone(timezone.utc)
+                else:
+                    created_time = created_at.astimezone(timezone.utc)
+                now = datetime.now(timezone.utc)
+                delta = (now - created_time).total_seconds()
+                print(f"  > Nessun evento disponibile, uso created_at fornito. Uptime dalla creazione: {delta} sec")
+                total_uptime = delta
 
     print(f"[DEBUG] Totale uptime VM {instance_id}: {total_uptime} sec\n")
     return total_uptime
