@@ -2,7 +2,7 @@
 # === Load plugin settings ===
 source ${BASH_SOURCE%/*}/settings
 
-function install_flask_dependencies {
+function install_flask_dependencies() {
     echo "Installing Flask and dependencies..."
     if [[ ! -d "$APP_DIR/venv" ]]; then
         python3 -m venv "$APP_DIR/venv"
@@ -12,37 +12,37 @@ function install_flask_dependencies {
     deactivate
 }
 
-function copy_service_file {
+function copy_service_file() {
     echo "Copying service file to systemd directory..."
     sudo cp "$SERVICE_DIR/cloudcost_idle.service" "$SYSTEMD_DIR"
     sudo systemctl daemon-reload
     sudo systemctl enable cloudcost_idle.service
 }
 
-function start_plugin {
+function start_plugin() {
     echo "Starting plugin..."
     sudo systemctl start cloudcost_idle.service
 }
 
-function stop_plugin {
+function stop_plugin() {
     echo "Stopping plugin..."
     sudo systemctl stop cloudcost_idle.service
 }
 
-function install_nova_filter{
-    echo "Install IdleVMFilter into Nova filters..."
-    sudo cp "$APP_DIR/nova_filter/idel_vm_filter.py" /opt/stack/nova/nova/scheduler/filters/
+function install_nova_filter() {
+    echo "Installing IdleVMFilter into Nova filters..."
+    sudo cp "$APP_DIR/nova_filter/idle_vm_filter.py" /opt/stack/nova/nova/scheduler/filters/
 }
 
-function configure_nova_filter{
+function configure_nova_filter() {
     echo "Enabling IdleVMFilter in nova.conf..."
-    iniset /etc/nova/nova/nova.conf DEFAULT scheduler_available_filters nova.scheduler
-    iniset /etc/nova/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter, IdleVMFilter
-    }
+    iniset /etc/nova/nova.conf DEFAULT scheduler_available_filters nova.scheduler.filters.all_filters
+    iniset /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,IdleVMFilter
+}
 
-function restart_nova_scheduler{
+function restart_nova_scheduler() {
     echo "Restarting nova scheduler service..."
-    sudo systemctl restart decstack@n/sch.service || sudo systemctl restart nova-scheduer
+    sudo systemctl restart devstack@n-sch.service || sudo systemctl restart nova-scheduler
 }
 
 if is_service_enabled cloudcost_idle; then
