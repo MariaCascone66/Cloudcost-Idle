@@ -14,7 +14,9 @@ function install_flask_dependencies {
 
 function install_nova_filter {
     echo "Installing IdleVMFilter into Nova..."
-    sudo cp "$APP_DIR/nova_filter/idle_vm_filter.py" /opt/stack/nova/nova/scheduler/filters/
+    sudo cp $APP_DIR/nova_filter/idle_vm_filter.py /opt/stack/nova/nova/scheduler/filters/
+    sudo iniset /etc/nova/nova.conf DEFAULT scheduler_available_filters "nova.scheduler.filters.all_filters,IdleVMFilter"
+    sudo iniset /etc/nova/nova.conf DEFAULT scheduler_default_filters "RetryFilter,AvailabilityZoneFilter,IdleVMFilter"
 }
 
 function configure_nova_filter {
