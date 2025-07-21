@@ -29,12 +29,31 @@ function stop_plugin {
     sudo systemctl stop cloudcost_idle.service
 }
 
+function install_nova_filter{
+    echo "Install IdleVMFilter into Nova filters..."
+    sudo cp "$APP_DIR/nova_filter/idel_vm_filter.py" /opt/stack/nova/nova/scheduler/filters/
+}
+
+function configure_nova_filter{
+    echo "Enabling IdleVMFilter in nova.conf..."
+    iniset /etc/nova/nova/nova.conf DEFAULT scheduler_available_filters nova.scheduler
+    iniset /etc/nova/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter, IdleVMFilter
+    }
+
+function restart_nova_scheduler{
+    echo "Restarting nova scheduler service..."
+    sudo systemctl restart decstack@n/sch.service || sudo systemctl restart nova-scheduer
+}
+
 if is_service_enabled cloudcost_idle; then
     if [[ "$1" == "stack" && "$2" == "install" ]]; then
         install_flask_dependencies
         copy_service_file
+        install_nova_filter
+        configure_nova_filter
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
         start_plugin
+        restart_nova_scheduler
     elif [[ "$1" == "unstack" ]]; then
         stop_plugin
     fi
