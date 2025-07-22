@@ -12,24 +12,6 @@ function install_flask_dependencies {
     deactivate
 }
 
-function install_nova_filter {
-    echo "Installing IdleVMFilter into Nova..."
-    sudo cp $APP_DIR/nova_filter/idle_vm_filter.py /opt/stack/nova/nova/scheduler/filters/
-    sudo iniset /etc/nova/nova.conf DEFAULT scheduler_available_filters "nova.scheduler.filters.all_filters,IdleVMFilter"
-    sudo iniset /etc/nova/nova.conf DEFAULT scheduler_default_filters "RetryFilter,AvailabilityZoneFilter,IdleVMFilter"
-}
-
-function configure_nova_filter {
-    echo "Enabling IdleVMFilter in nova.conf..."
-    iniset /etc/nova/nova.conf DEFAULT scheduler_available_filters nova.scheduler.filters.all_filters
-    iniset /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,IdleVMFilter
-}
-
-function restart_nova_scheduler {
-    echo "Restarting Nova Scheduler..."
-    sudo systemctl restart devstack@n-sch.service
-}
-
 function copy_service_file {
     echo "Copying service file to systemd directory..."
     sudo cp "$SERVICE_DIR/cloudcost_idle.service" "$SYSTEMD_DIR"
@@ -50,10 +32,6 @@ function stop_plugin {
 if is_service_enabled cloudcost_idle; then
     if [[ "$1" == "stack" && "$2" == "install" ]]; then
         install_flask_dependencies
-        install_nova_filter
-        configure_nova_filter
-        copy_service_file
-        restart_nova_scheduler
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
         start_plugin
     elif [[ "$1" == "unstack" ]]; then
