@@ -126,11 +126,18 @@ function startAutoUpdateCosts() {
         updateVmCost(vmId);
     });
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     startAutoUpdateCosts();
+
     const deleteForm = document.getElementById('deleteForm');
     const reactivateForm = document.getElementById('reactivateForm');
+    const refreshBtn = document.getElementById('refreshBtn');
+
     if (deleteForm) deleteForm.addEventListener('submit', handleDelete);
     if (reactivateForm) reactivateForm.addEventListener('submit', handleReactivate);
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            window.location.href = '/?t=' + Date.now(); // forza reload, evitando la cache
+        });
+    }
 });
