@@ -1,4 +1,3 @@
-actions.js:
 
 function openDeleteModal(vmName, deleteUrl, vmId) {
     document.getElementById('vmName').innerText = vmName;
@@ -21,7 +20,7 @@ function closeModal(id = 'deleteModal') {
 }
 
 async function checkVmExists(vmId) {
-    const response = await fetch(/check_vm_exists/${vmId});
+    const response = await fetch(`/check_vm_exists/${vmId}`);
     const data = await response.json();
     return data.exists;
 }
@@ -41,7 +40,7 @@ async function handleDelete(event) {
 
     closeModal('deleteModal');
 
-    const row = document.querySelector(tr[data-vmid="${vmId}"]);
+    const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
     if (row) {
         row.remove();
     }
@@ -49,7 +48,7 @@ async function handleDelete(event) {
 
 async function getVmStatus(vmId) {
     try {
-        const response = await fetch(/check_vm_status/${vmId});
+        const response = await fetch(`/check_vm_status/${vmId}`);
         if (!response.ok) throw new Error("Errore fetch");
         const data = await response.json();
         return data.status;
@@ -76,7 +75,7 @@ async function handleReactivate(event) {
 
     closeModal('reactivateModal');
 
-    const row = document.querySelector(tr[data-vmid="${vmId}"]);
+    const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
     if (row) {
         const statusCell = row.querySelector('td:nth-child(11)');
         if (statusCell){
@@ -93,15 +92,15 @@ async function handleReactivate(event) {
 }
 
 async function updateVmCost(vmId) {
-    const response = await fetch(/get_cost/${vmId});
+    const response = await fetch(`/get_cost/${vmId}`);
     const data = await response.json();
     if (data.success) {
-        const row = document.querySelector(tr[data-vmid="${vmId}"]);
+        const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
         if (row) {
             const costEl = row.querySelector('.vm-cost');
             const uptimeEl = row.querySelector('.vm-uptime');
-            if (costEl) costEl.textContent = $${data.estimated_cost};
-            if (uptimeEl) uptimeEl.textContent = ${data.uptime} h;
+            if (costEl) costEl.textContent = `$${data.estimated_cost}`;
+            if (uptimeEl) uptimeEl.textContent = `${data.uptime} h`;
         }
     }
 }
