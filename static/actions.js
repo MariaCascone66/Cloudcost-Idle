@@ -29,8 +29,23 @@ async function handleDelete(event) {
     event.preventDefault();
     const form = document.getElementById('deleteForm');
     const vmId = form.dataset.vmid;
+    const actionUrl = form.action;
 
-    await fetch(form.action, { method: 'POST' });
+    console.log("⚠️ DELETE FORM DEBUG:");
+    console.log("vmId:", vmId);
+    console.log("form.action:", actionUrl);
+
+    if (!actionUrl || actionUrl === "undefined") {
+        alert("❌ ERRORE: form.action non è definito!");
+        return;
+    }
+
+    const response = await fetch(actionUrl, { method: 'POST' });
+    if (!response.ok) {
+        const err = await response.text();
+        alert(`❌ ERRORE dal server: ${response.status} - ${err}`);
+        return;
+    }
 
     for (let i = 0; i < 10; i++) {
         const exists = await checkVmExists(vmId);
@@ -45,6 +60,7 @@ async function handleDelete(event) {
         row.remove();
     }
 }
+
 
 async function getVmStatus(vmId) {
     try {
