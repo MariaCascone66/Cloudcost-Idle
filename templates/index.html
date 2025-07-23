@@ -43,12 +43,12 @@
                         <td class="px-4 py-2">{{ vm.status }}</td>
                         <td class="px-4 py-2">
                             {% if vm.status == 'SHUTOFF' %}
-                            <button class="btn btn-success btn-sm" data-id="{{ vm.id }}" onclick="openReactivateModal(this)">Riattiva</button>
+                                <button onclick="openReactivateModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="bg-green-600 text-white px-3 py-1 rounded">Riattiva</button>
                             {% else %}
                                 <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
                             {% endif %}
                             <br>
-                            <button onclick="openDeleteModal('{{ vm.name }}', '/delete/{{ vm.id }}', '{{ vm.id }}')" class="text-red-600 hover:underline">Elimina</button>
+                            <button onclick="openDeleteModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="bg-red-600 text-white px-3 py-1 rounded">Elimina</button>
                         </td>
                     </tr>
                     {% endfor %}

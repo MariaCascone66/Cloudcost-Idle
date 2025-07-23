@@ -1,16 +1,15 @@
-
-function openDeleteModal(vmName, deleteUrl, vmId) {
+function openDeleteModal(vmName, vmId) {
     document.getElementById('vmName').innerText = vmName;
     const form = document.getElementById('deleteForm');
-    form.action = deleteUrl;
+    form.action = `/delete_vm/${vmId}`;
     form.dataset.vmid = vmId;
     document.getElementById('deleteModal').classList.remove('hidden');
 }
 
-function openReactivateModal(vmName, reactivateUrl, vmId) {
+function openReactivateModal(vmName, vmId) {
     document.getElementById('vmNameReactivate').innerText = vmName;
     const form = document.getElementById('reactivateForm');
-    form.action = reactivateUrl;
+    form.action = `/reactivate_vm/${vmId}`;
     form.dataset.vmid = vmId;
     document.getElementById('reactivateModal').classList.remove('hidden');
 }
@@ -30,10 +29,6 @@ async function handleDelete(event) {
     const form = document.getElementById('deleteForm');
     const vmId = form.dataset.vmid;
     const actionUrl = form.action;
-
-    console.log("⚠️ DELETE FORM DEBUG:");
-    console.log("vmId:", vmId);
-    console.log("form.action:", actionUrl);
 
     if (!actionUrl || actionUrl === "undefined") {
         alert("❌ ERRORE: form.action non è definito!");
@@ -61,7 +56,6 @@ async function handleDelete(event) {
     }
 }
 
-
 async function getVmStatus(vmId) {
     try {
         const response = await fetch(`/check_vm_status/${vmId}`);
@@ -88,7 +82,6 @@ async function handleReactivate(event) {
     }
 
     await updateVmCost(vmId);
-
     closeModal('reactivateModal');
 
     const row = document.querySelector(`tr[data-vmid="${vmId}"]`);
@@ -97,10 +90,10 @@ async function handleReactivate(event) {
         if (statusCell){
             statusCell.textContent = 'ACTIVE';
         } 
-        const reactivateBtn = row.querySelector('button.text-green-600');
+        const reactivateBtn = row.querySelector('button.bg-green-600');
         if (reactivateBtn) {
             reactivateBtn.classList.add('text-gray-400', 'cursor-not-allowed');
-            reactivateBtn.classList.remove('text-green-600', 'hover:underline');
+            reactivateBtn.classList.remove('bg-green-600', 'hover:underline', 'text-white');
             reactivateBtn.setAttribute('disabled', 'true');
             reactivateBtn.textContent = 'Riattiva';
         }
@@ -132,7 +125,6 @@ function startAutoUpdateCosts() {
 
 document.addEventListener('DOMContentLoaded', () => {
     startAutoUpdateCosts();
-
     const deleteForm = document.getElementById('deleteForm');
     const reactivateForm = document.getElementById('reactivateForm');
     if (deleteForm) deleteForm.addEventListener('submit', handleDelete);

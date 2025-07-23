@@ -1,27 +1,27 @@
-<!-- Modal di conferma eliminazione -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white w-[400px] p-8 rounded-lg shadow-xl text-center">
-        <h3 class="text-xl font-bold mb-4">Conferma eliminazione</h3>
-        <p class="mb-6">Sei sicuro di voler eliminare la VM <span id="vmName" class="font-semibold"></span>? Questa azione è irreversibile.</p>
-        <div class="flex justify-center space-x-4">
-            <form id="deleteForm" method="POST" onsubmit="handleDelete(event)">
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
-            </form>
-            <button onclick="closeModal('deleteModal')" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
-        </div>
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-semibold mb-4">Conferma Eliminazione</h3>
+        <p class="mb-6">Sei sicuro di voler eliminare la VM <span id="vmName" class="font-bold"></span>?</p>
+        <form id="deleteForm" method="post">
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeModal('deleteModal')" class="bg-gray-300 px-4 py-2 rounded">Annulla</button>
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Elimina</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- Modal di conferma riattivazione -->
-<div id="reactivateModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white w-[400px] p-8 rounded-lg shadow-xl text-center">
-        <h3 class="text-xl font-bold mb-4">Conferma riattivazione</h3>
-        <p class="mb-6">Vuoi riattivare la VM <span id="vmNameReactivate" class="font-semibold"></span>?</p>
-        <div class="flex justify-center space-x-4">
-            <form id="reactivateForm" method="POST" onsubmit="handleReactivate(event)">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Riattiva</button>
-            </form>
-            <button onclick="closeModal('reactivateModal')" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
-        </div>
+<!-- Reactivate Modal -->
+<div id="reactivateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-semibold mb-4">Conferma Riattivazione</h3>
+        <p class="mb-6">Vuoi riattivare la VM <span id="vmNameReactivate" class="font-bold"></span>?</p>
+        <form id="reactivateForm" method="post">
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeModal('reactivateModal')" class="bg-gray-300 px-4 py-2 rounded">Annulla</button>
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Riattiva</button>
+            </div>
+        </form>
     </div>
 </div>
