@@ -76,6 +76,10 @@ def index():
         vms.append(vm_info)
     return render_template("index.html", vms=vms)
 
+@app.route('/refresh')
+def refresh():
+    return redirect(url_for('index'))
+
 @app.route('/get_cost/<instance_id>')
 def get_cost(instance_id):
     conn = create_connection()

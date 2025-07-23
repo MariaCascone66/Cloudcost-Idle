@@ -68,6 +68,10 @@ async function getVmStatus(vmId) {
     }
 }
 
+function refreshVMs() {
+    window.location.href = '/refresh';
+}
+
 async function handleReactivate(event) {
     event.preventDefault();
     const form = document.getElementById('reactivateForm');

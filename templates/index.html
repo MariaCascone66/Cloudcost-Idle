@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CloudCost-Idle Dashboard</title>
+    <title>Cloud Cost Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
     <div class="container mx-auto p-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">💰 Estimated VM Costs</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">💻 VM Dashboard</h2>
+            <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">🔄 Aggiorna VM</button>
+        </div>
 
         <div class="overflow-x-auto shadow-lg rounded-xl bg-white">
             <table class="min-w-full table-auto text-sm text-left">
@@ -15,14 +18,14 @@
                     <tr>
                         <th class="px-4 py-3">Name</th>
                         <th class="px-4 py-3">vCPU</th>
-                        <th class="px-4 py-3">RAM (MB)</th>
-                        <th class="px-4 py-3">Disk (GB)</th>
-                        <th class="px-4 py-3">Uptime (h)</th>
-                        <th class="px-4 py-3">CPU Cost ($)</th>
-                        <th class="px-4 py-3">RAM Cost ($)</th>
-                        <th class="px-4 py-3">Disk Cost ($)</th>
-                        <th class="px-4 py-3 text-green-700">Total Cost ($)</th>
-                        <th class="px-4 py-3">Created At</th>
+                        <th class="px-4 py-3">RAM</th>
+                        <th class="px-4 py-3">Disk</th>
+                        <th class="px-4 py-3">Uptime</th>
+                        <th class="px-4 py-3">Cost CPU</th>
+                        <th class="px-4 py-3">Cost RAM</th>
+                        <th class="px-4 py-3">Cost Disk</th>
+                        <th class="px-4 py-3">Total Cost</th>
+                        <th class="px-4 py-3">Created</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3">Actions</th>
                     </tr>
@@ -43,7 +46,7 @@
                         <td class="px-4 py-2">{{ vm.status }}</td>
                         <td class="px-4 py-2">
                             {% if vm.status == 'SHUTOFF' %}
-                                <button onclick="openReactivateModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="bg-green-600 text-white px-3 py-1 rounded">Riattiva</button>
+                            <button onclick="openReactivateModal('{{ vm.instance_name }}', '{{ vm.id }}')" class="bg-green-600 text-white px-3 py-1 rounded">Riattiva</button>
                             {% else %}
                                 <button class="text-gray-400 cursor-not-allowed" disabled>Riattiva</button>
                             {% endif %}
@@ -54,10 +57,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <div class="mt-6 text-center">
-            <a href="/idle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow-md transition">Check Idle VMs</a>
         </div>
     </div>
 
