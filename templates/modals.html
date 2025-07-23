@@ -4,7 +4,7 @@
         <h3 class="text-xl font-bold mb-4">Conferma eliminazione</h3>
         <p class="mb-6">Sei sicuro di voler eliminare la VM <span id="vmName" class="font-semibold"></span>? Questa azione è irreversibile.</p>
         <div class="flex justify-center space-x-4">
-            <form id="deleteForm" method="POST" action="" data-vmid="">
+            <form id="deleteForm" method="POST" onsubmit="handleDelete(event)">
                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">Elimina</button>
             </form>
             <button onclick="closeModal('deleteModal')" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Annulla</button>
